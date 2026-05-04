@@ -19,7 +19,7 @@ The initial version (MVP) focuses on a clean foundation with minimal features:
 - Leaderboards or Google Play Games integration.
 - Game engines like Flame (sticking to standard Flutter widgets for now).
 - Complex local persistence like Hive/Isar (use basic SharedPreferences if absolutely necessary, but minimal state is preferred).
-- Social and travel features from the legacy FlagPost app.
+- Social and travel features from the legacy FlagPost app. (Note: The legacy social code has been isolated and is not part of the new app path).
 
 ## Planned Later Features
 - Dynamic flag generation and level progression.
