@@ -1,31 +1,32 @@
 import 'dart:async';
-import 'dart:ui';
+// import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firebase_options.dart';
 import 'onboarding_screen.dart';
 import 'settings_screen.dart';
 import 'board_screen.dart';
 import 'radar_screen.dart';
 import 'chat_screen.dart';
 import 'app_theme.dart';
+import 'puzzle/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Firebase initialization is temporarily disabled for MVP
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
 
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+  // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  // PlatformDispatcher.instance.onError = (error, stack) {
+  //   FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+  //   return true;
+  // };
 
   final prefs = await SharedPreferences.getInstance();
   final savedTheme = prefs.getString('themeMode') ?? 'system';
@@ -74,15 +75,12 @@ class _FindPaesanoAppState extends State<FindPaesanoApp> {
       valueListenable: themeNotifier,
       builder: (context, themeMode, _) {
         return MaterialApp(
-          title: 'FlagPost',
+          title: 'FlagPost: Puzzle',
           debugShowCheckedModeBanner: false,
           themeMode: themeMode,
           theme: AppTheme.lightTheme(),
           darkTheme: AppTheme.darkTheme(),
-          routes: {
-            '/home': (context) => const MainScreen(),
-          },
-          home: const _AppBootstrapScreen(),
+          home: const HomeScreen(),
         );
       },
     );
