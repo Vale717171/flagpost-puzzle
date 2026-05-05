@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:flagpost/puzzle/logic/puzzle_engine.dart';
+import 'package:flagpost/puzzle/data/flag_repository.dart';
+import 'package:flagpost/puzzle/data/flag_country.dart';
 import 'package:flutter/material.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final PuzzleEngine? testEngine;
+  final FlagRepository? testFlagRepo;
+  const GameScreen({super.key, this.testEngine, this.testFlagRepo});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -12,6 +16,9 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   late PuzzleEngine _engine;
+  late final FlagRepository _flagRepo;
+  FlagCountry? _currentFlag;
+  bool _isRepoLoaded = false;
   int _moves = 0;
   Timer? _timer;
   int _seconds = 0;
@@ -23,7 +30,19 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    _startNewGame(_currentSize);
+    _flagRepo = widget.testFlagRepo ?? FlagRepository();
+    _loadRepository();
+  }
+
+  Future<void> _loadRepository() async {
+    try {
+      await _flagRepo.loadAll();
+      setState(() {
+        _isRepoLoaded = true;
+      });
+      _startNewGame(_currentSize);
+    } catch (_) {
+    }
   }
 
   @override
@@ -34,11 +53,18 @@ class _GameScreenState extends State<GameScreen> {
 
   void _startNewGame(int size) {
     setState(() {
+      if (_isRepoLoaded) {
+        _currentFlag = _flagRepo.randomFlag();
+      }
       _currentSize = size;
-      _engine = PuzzleEngine(size);
-      // Determine move count based on size for a good shuffle
-      final shuffleMoves = size == 3 ? 50 : size == 4 ? 100 : 150;
-      _engine.shuffle(shuffleMoves);
+      if (widget.testEngine != null) {
+        _engine = widget.testEngine!;
+      } else {
+        _engine = PuzzleEngine(size);
+        // Determine move count based on size for a good shuffle
+        final shuffleMoves = size == 3 ? 50 : size == 4 ? 100 : 150;
+        _engine.shuffle(shuffleMoves);
+      }
       _moves = 0;
       _seconds = 0;
       _isPlaying = true;
@@ -131,8 +157,22 @@ class _GameScreenState extends State<GameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Flag completed'),
-        content: Text('Time: ${_formatTime(_seconds)}\nMoves: $_moves'),
+        title: const Text('Puzzle completed!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Time: ${_formatTime(_seconds)}'),
+            Text('Moves: $_moves'),
+            const SizedBox(height: 16),
+            if (_currentFlag != null) ...[
+              Text('Country: ${_currentFlag!.countryName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text('Capital: ${_currentFlag!.capital}'),
+              const SizedBox(height: 8),
+              Text(_currentFlag!.shortFact, style: const TextStyle(fontStyle: FontStyle.italic)),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -177,9 +217,11 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
+        child: !_isRepoLoaded || _currentFlag == null
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
+                  Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -188,6 +230,7 @@ class _GameScreenState extends State<GameScreen> {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   Text('Moves: $_moves',
+                      key: const Key('moves-counter'),
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
@@ -270,6 +313,7 @@ class _GameScreenState extends State<GameScreen> {
                             width: tileSize,
                             height: tileSize,
                             child: GestureDetector(
+                              key: Key('puzzle-tile-position-$index'),
                               behavior: HitTestBehavior.opaque,
                               onTap: () => _onTileTapped(index),
                               onPanStart: (details) =>
@@ -296,7 +340,7 @@ class _GameScreenState extends State<GameScreen> {
                                               2.0,
                                     ),
                                     child: Image.asset(
-                                      'assets/icon.png',
+                                      _currentFlag!.assetPath,
                                       fit: BoxFit.cover,
                                       width: boardSize,
                                       height: boardSize,
@@ -329,7 +373,7 @@ class _GameScreenState extends State<GameScreen> {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Preview'),
-                          content: Image.asset('assets/icon.png'),
+                          content: Image.asset(_currentFlag!.assetPath),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
