@@ -149,5 +149,59 @@ void main() {
       // Best Moves: 1
       expect(find.text('Best Moves: 1'), findsOneWidget);
     });
+
+    testWidgets('difficulty selector shows popup with three options',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: GameScreen(
+          testEngine: _makeDeterministicEngine(),
+          testFlagRepo: fakeFlagRepo,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // The difficulty selector should be visible with default 4x4 label
+      // (testEngine is 3x3, but _currentSize defaults to 4 until _startNewGame
+      //  is called; after loadAll the game starts with size 4)
+      final selector = find.byKey(const Key('difficulty-selector'));
+      expect(selector, findsOneWidget);
+
+      // Tap the selector to open the popup menu
+      await tester.tap(selector);
+      await tester.pumpAndSettle();
+
+      // All three difficulty options should appear
+      expect(find.text('Easy 3×3'), findsOneWidget);
+      expect(find.text('Medium 4×4'), findsOneWidget);
+      expect(find.text('Hard 5×5'), findsOneWidget);
+    });
+
+    testWidgets('selecting a difficulty resets moves counter',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: GameScreen(
+          testEngine: _makeDeterministicEngine(),
+          testFlagRepo: fakeFlagRepo,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Make a move first
+      final tileFinder = find.byKey(const Key('puzzle-tile-position-7'));
+      await tester.tap(tileFinder);
+      await tester.pump();
+      expect(find.text('Moves: 1'), findsOneWidget);
+
+      // Open difficulty selector and pick Easy 3x3
+      final selector = find.byKey(const Key('difficulty-selector'));
+      await tester.tap(selector);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Easy 3×3'));
+      await tester.pumpAndSettle();
+
+      // Moves should be reset to 0
+      expect(find.text('Moves: 0'), findsOneWidget);
+    });
   });
 }

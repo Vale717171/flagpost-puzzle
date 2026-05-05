@@ -25,6 +25,7 @@ class _GameScreenState extends State<GameScreen> {
   int _seconds = 0;
   int _currentSize = 4;
   bool _isPlaying = false;
+  int _restartCounter = 0;
   int? _draggedTileIndex;
   double _dragOffset = 0.0;
 
@@ -53,6 +54,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _startNewGame(int size) {
+    _timer?.cancel();
     setState(() {
       if (_isRepoLoaded) {
         _currentFlag = _flagRepo.randomFlag();
@@ -69,10 +71,11 @@ class _GameScreenState extends State<GameScreen> {
       _moves = 0;
       _seconds = 0;
       _isPlaying = true;
+      _restartCounter++;
       _draggedTileIndex = null;
       _dragOffset = 0.0;
     });
-    _timer?.cancel();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_isPlaying) {
         setState(() {
@@ -262,14 +265,63 @@ class _GameScreenState extends State<GameScreen> {
       appBar: AppBar(
         title: const Text('Play'),
         actions: [
-          PopupMenuButton<int>(
-            onSelected: _startNewGame,
-            icon: const Icon(Icons.grid_on),
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 3, child: Text('Easy 3x3')),
-              const PopupMenuItem(value: 4, child: Text('Medium 4x4')),
-              const PopupMenuItem(value: 5, child: Text('Hard 5x5')),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: PopupMenuButton<int>(
+              key: const Key('difficulty-selector'),
+              onSelected: _startNewGame,
+              tooltip: 'Change difficulty',
+              padding: EdgeInsets.zero,
+              position: PopupMenuPosition.under,
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 3,
+                  child: Row(
+                    children: [
+                      Icon(Icons.grid_3x3, size: 20, color: _currentSize == 3 ? Theme.of(context).colorScheme.primary : null),
+                      const SizedBox(width: 8),
+                      const Text('Easy 3×3'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 4,
+                  child: Row(
+                    children: [
+                      Icon(Icons.grid_4x4, size: 20, color: _currentSize == 4 ? Theme.of(context).colorScheme.primary : null),
+                      const SizedBox(width: 8),
+                      const Text('Medium 4×4'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 5,
+                  child: Row(
+                    children: [
+                      Icon(Icons.grid_on, size: 20, color: _currentSize == 5 ? Theme.of(context).colorScheme.primary : null),
+                      const SizedBox(width: 8),
+                      const Text('Hard 5×5'),
+                    ],
+                  ),
+                ),
+              ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.grid_on, size: 20),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$_currentSize×$_currentSize',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.arrow_drop_down, size: 20),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -304,6 +356,7 @@ class _GameScreenState extends State<GameScreen> {
                     final tileSize = boardSize / _currentSize;
 
                     return Container(
+                      key: ValueKey('board-${_currentFlag?.id}-$_currentSize-$_restartCounter'),
                       width: boardSize,
                       height: boardSize,
                       decoration: BoxDecoration(
