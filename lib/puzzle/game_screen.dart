@@ -250,8 +250,16 @@ class _GameScreenState extends State<GameScreen> {
                       width: boardSize,
                       height: boardSize,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        border: Border.all(color: Colors.black26, width: 2),
+                        color: const Color(0xFF121212),
+                        border: Border.all(color: Colors.black87, width: 3),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(2, 4),
+                            blurRadius: 6,
+                          ),
+                        ],
                       ),
                       child: Stack(
                         children: _engine.tiles.asMap().entries.map((entry) {
@@ -295,7 +303,15 @@ class _GameScreenState extends State<GameScreen> {
                               top: visualTop,
                               width: tileSize,
                               height: tileSize,
-                              child: const SizedBox.shrink(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF080808),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
                             );
                           }
 
@@ -323,27 +339,37 @@ class _GameScreenState extends State<GameScreen> {
                               onPanEnd: (details) =>
                                   _onPanEnd(details, index, tileSize),
                               child: Container(
+                                margin: const EdgeInsets.all(2.0),
                                 decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                      color: Colors.white, width: 1),
+                                      color: Colors.black.withValues(alpha: 0.2), width: 1),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
                                 ),
-                                child: ClipRect(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(7),
                                   child: OverflowBox(
                                     maxWidth: boardSize,
                                     maxHeight: boardSize,
-                                    alignment: Alignment(
-                                      -1.0 +
-                                          (correctCol / (_currentSize - 1)) *
-                                              2.0,
-                                      -1.0 +
-                                          (correctRow / (_currentSize - 1)) *
-                                              2.0,
-                                    ),
-                                    child: Image.asset(
-                                      _currentFlag!.assetPath,
-                                      fit: BoxFit.cover,
-                                      width: boardSize,
-                                      height: boardSize,
+                                    alignment: Alignment.topLeft,
+                                    child: Transform.translate(
+                                      offset: Offset(
+                                        -correctCol * tileSize - 3,
+                                        -correctRow * tileSize - 3,
+                                      ),
+                                      child: Image.asset(
+                                        _currentFlag!.assetPath,
+                                        fit: BoxFit.cover,
+                                        width: boardSize,
+                                        height: boardSize,
+                                      ),
                                     ),
                                   ),
                                 ),
