@@ -34,7 +34,7 @@
   {
     "id": "br",
     "countryName": "Brazil",
-    "capital": "Brasília",
+    "capital": "Bras\u00edlia",
     "continent": "South America",
     "assetPath": "assets/flags/images/br.png",
     "shortFact": "Brazil is the world's largest producer of coffee."
@@ -78,5 +78,245 @@
     "continent": "Europe",
     "assetPath": "assets/flags/images/gr.png",
     "shortFact": "Greece is considered the cradle of Western civilization."
+  },
+  {
+    "id": "ar",
+    "countryName": "Argentina",
+    "capital": "Buenos Aires",
+    "continent": "South America",
+    "assetPath": "assets/flags/images/ar.png",
+    "shortFact": "Argentina is the eighth-largest country in the world."
+  },
+  {
+    "id": "au",
+    "countryName": "Australia",
+    "capital": "Canberra",
+    "continent": "Oceania",
+    "assetPath": "assets/flags/images/au.png",
+    "shortFact": "Australia is the only country that covers an entire continent."
+  },
+  {
+    "id": "be",
+    "countryName": "Belgium",
+    "capital": "Brussels",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/be.png",
+    "shortFact": "Belgium produces over 220,000 tons of chocolate per year."
+  },
+  {
+    "id": "ch",
+    "countryName": "Switzerland",
+    "capital": "Bern",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/ch.png",
+    "shortFact": "Switzerland has over 1,500 lakes."
+  },
+  {
+    "id": "cn",
+    "countryName": "China",
+    "capital": "Beijing",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/cn.png",
+    "shortFact": "The Great Wall of China is over 13,000 miles long."
+  },
+  {
+    "id": "co",
+    "countryName": "Colombia",
+    "capital": "Bogot\u00e1",
+    "continent": "South America",
+    "assetPath": "assets/flags/images/co.png",
+    "shortFact": "Colombia is the second most biodiverse country in the world."
+  },
+  {
+    "id": "dk",
+    "countryName": "Denmark",
+    "capital": "Copenhagen",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/dk.png",
+    "shortFact": "Denmark is consistently ranked as one of the happiest countries in the world."
+  },
+  {
+    "id": "eg",
+    "countryName": "Egypt",
+    "capital": "Cairo",
+    "continent": "Africa",
+    "assetPath": "assets/flags/images/eg.png",
+    "shortFact": "The Great Pyramid of Giza is the oldest of the Seven Wonders of the Ancient World."
+  },
+  {
+    "id": "fi",
+    "countryName": "Finland",
+    "capital": "Helsinki",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/fi.png",
+    "shortFact": "Finland has the highest consumption of coffee per capita in the world."
+  },
+  {
+    "id": "id",
+    "countryName": "Indonesia",
+    "capital": "Jakarta",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/id.png",
+    "shortFact": "Indonesia consists of over 17,000 islands."
+  },
+  {
+    "id": "ie",
+    "countryName": "Ireland",
+    "capital": "Dublin",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/ie.png",
+    "shortFact": "Ireland is known as the Emerald Isle because of its lush green landscape."
+  },
+  {
+    "id": "il",
+    "countryName": "Israel",
+    "capital": "Jerusalem",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/il.png",
+    "shortFact": "The Dead Sea in Israel is the lowest point on Earth."
+  },
+  {
+    "id": "in",
+    "countryName": "India",
+    "capital": "New Delhi",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/in.png",
+    "shortFact": "India is the world's most populous democracy."
+  },
+  {
+    "id": "jm",
+    "countryName": "Jamaica",
+    "capital": "Kingston",
+    "continent": "North America",
+    "assetPath": "assets/flags/images/jm.png",
+    "shortFact": "Jamaica produces the world-renowned Blue Mountain coffee."
+  },
+  {
+    "id": "ke",
+    "countryName": "Kenya",
+    "capital": "Nairobi",
+    "continent": "Africa",
+    "assetPath": "assets/flags/images/ke.png",
+    "shortFact": "Kenya is home to the famous Maasai Mara National Reserve."
+  },
+  {
+    "id": "kr",
+    "countryName": "South Korea",
+    "capital": "Seoul",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/kr.png",
+    "shortFact": "South Korea has the fastest internet speeds in the world."
+  },
+  {
+    "id": "ma",
+    "countryName": "Morocco",
+    "capital": "Rabat",
+    "continent": "Africa",
+    "assetPath": "assets/flags/images/ma.png",
+    "shortFact": "Morocco is home to the oldest existing, continually operating educational institution in the world."
+  },
+  {
+    "id": "mx",
+    "countryName": "Mexico",
+    "capital": "Mexico City",
+    "continent": "North America",
+    "assetPath": "assets/flags/images/mx.png",
+    "shortFact": "Mexico City is built on the ruins of a great Aztec city."
+  },
+  {
+    "id": "ng",
+    "countryName": "Nigeria",
+    "capital": "Abuja",
+    "continent": "Africa",
+    "assetPath": "assets/flags/images/ng.png",
+    "shortFact": "Nigeria is the most populous country in Africa."
+  },
+  {
+    "id": "nl",
+    "countryName": "Netherlands",
+    "capital": "Amsterdam",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/nl.png",
+    "shortFact": "There are more bicycles than people in the Netherlands."
+  },
+  {
+    "id": "no",
+    "countryName": "Norway",
+    "capital": "Oslo",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/no.png",
+    "shortFact": "Norway introduced salmon sushi to Japan in the 1980s."
+  },
+  {
+    "id": "nz",
+    "countryName": "New Zealand",
+    "capital": "Wellington",
+    "continent": "Oceania",
+    "assetPath": "assets/flags/images/nz.png",
+    "shortFact": "New Zealand was the first country to give women the right to vote."
+  },
+  {
+    "id": "pe",
+    "countryName": "Peru",
+    "capital": "Lima",
+    "continent": "South America",
+    "assetPath": "assets/flags/images/pe.png",
+    "shortFact": "Machu Picchu is a 15th-century Inca citadel located in Peru."
+  },
+  {
+    "id": "ph",
+    "countryName": "Philippines",
+    "capital": "Manila",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/ph.png",
+    "shortFact": "The Philippines is an archipelago comprising over 7,600 islands."
+  },
+  {
+    "id": "pt",
+    "countryName": "Portugal",
+    "capital": "Lisbon",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/pt.png",
+    "shortFact": "Portugal is the largest producer of cork in the world."
+  },
+  {
+    "id": "ru",
+    "countryName": "Russia",
+    "capital": "Moscow",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/ru.png",
+    "shortFact": "Russia is the largest country in the world by surface area."
+  },
+  {
+    "id": "se",
+    "countryName": "Sweden",
+    "capital": "Stockholm",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/se.png",
+    "shortFact": "Sweden is a global leader in recycling and waste management."
+  },
+  {
+    "id": "th",
+    "countryName": "Thailand",
+    "capital": "Bangkok",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/th.png",
+    "shortFact": "Thailand is the only Southeast Asian country never to have been colonized by a European power."
+  },
+  {
+    "id": "tr",
+    "countryName": "Turkey",
+    "capital": "Ankara",
+    "continent": "Europe/Asia",
+    "assetPath": "assets/flags/images/tr.png",
+    "shortFact": "Istanbul in Turkey is the only city in the world located on two continents."
+  },
+  {
+    "id": "za",
+    "countryName": "South Africa",
+    "capital": "Pretoria",
+    "continent": "Africa",
+    "assetPath": "assets/flags/images/za.png",
+    "shortFact": "South Africa has three capital cities."
   }
 ]
