@@ -1,0 +1,82 @@
+[
+  {
+    "id": "it",
+    "countryName": "Italy",
+    "capital": "Rome",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/it.png",
+    "shortFact": "Italy has more UNESCO World Heritage sites than any other country."
+  },
+  {
+    "id": "fr",
+    "countryName": "France",
+    "capital": "Paris",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/fr.png",
+    "shortFact": "France is the most visited country in the world."
+  },
+  {
+    "id": "de",
+    "countryName": "Germany",
+    "capital": "Berlin",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/de.png",
+    "shortFact": "Germany has over 1,000 varieties of sausages."
+  },
+  {
+    "id": "jp",
+    "countryName": "Japan",
+    "capital": "Tokyo",
+    "continent": "Asia",
+    "assetPath": "assets/flags/images/jp.png",
+    "shortFact": "Japan consists of over 6,800 islands."
+  },
+  {
+    "id": "br",
+    "countryName": "Brazil",
+    "capital": "Brasília",
+    "continent": "South America",
+    "assetPath": "assets/flags/images/br.png",
+    "shortFact": "Brazil is the world's largest producer of coffee."
+  },
+  {
+    "id": "ca",
+    "countryName": "Canada",
+    "capital": "Ottawa",
+    "continent": "North America",
+    "assetPath": "assets/flags/images/ca.png",
+    "shortFact": "Canada has more lakes than the rest of the world combined."
+  },
+  {
+    "id": "us",
+    "countryName": "United States",
+    "capital": "Washington, D.C.",
+    "continent": "North America",
+    "assetPath": "assets/flags/images/us.png",
+    "shortFact": "The US has the world's largest economy."
+  },
+  {
+    "id": "gb",
+    "countryName": "United Kingdom",
+    "capital": "London",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/gb.png",
+    "shortFact": "The UK is made up of four countries: England, Scotland, Wales, and Northern Ireland."
+  },
+  {
+    "id": "es",
+    "countryName": "Spain",
+    "capital": "Madrid",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/es.png",
+    "shortFact": "Spain produces over half of the world's olive oil."
+  },
+  {
+    "id": "gr",
+    "countryName": "Greece",
+    "capital": "Athens",
+    "continent": "Europe",
+    "assetPath": "assets/flags/images/gr.png",
+    "shortFact": "Greece is considered the cradle of Western civilization."
+  }
+]

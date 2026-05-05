@@ -44,3 +44,5 @@ flutter:
   assets:
     - assets/
     - assets/starter_tips.json
+    - assets/flags/flags.json
+    - assets/flags/images/
