@@ -17,6 +17,8 @@ class _GameScreenState extends State<GameScreen> {
   int _seconds = 0;
   int _currentSize = 4;
   bool _isPlaying = false;
+  int? _draggedTileIndex;
+  double _dragOffset = 0.0;
 
   @override
   void initState() {
@@ -40,6 +42,8 @@ class _GameScreenState extends State<GameScreen> {
       _moves = 0;
       _seconds = 0;
       _isPlaying = true;
+      _draggedTileIndex = null;
+      _dragOffset = 0.0;
     });
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -53,6 +57,7 @@ class _GameScreenState extends State<GameScreen> {
 
   void _onTileTapped(int index) {
     if (!_isPlaying) return;
+    if (_draggedTileIndex != null) return; // Ignore tap if currently dragging
 
     if (_engine.canMove(index)) {
       setState(() {
@@ -65,6 +70,59 @@ class _GameScreenState extends State<GameScreen> {
           _showCompletionDialog();
         }
       });
+    }
+  }
+
+  void _onPanStart(DragStartDetails details, int index) {
+    if (!_isPlaying) return;
+    if (_engine.canMove(index)) {
+      setState(() {
+        _draggedTileIndex = index;
+        _dragOffset = 0.0;
+      });
+    }
+  }
+
+  void _onPanUpdate(DragUpdateDetails details, int index) {
+    if (_draggedTileIndex != index) return;
+    final eIndex = _engine.emptyIndex;
+    final row = index ~/ _currentSize;
+    final col = index % _currentSize;
+    final eRow = eIndex ~/ _currentSize;
+    final eCol = eIndex % _currentSize;
+
+    setState(() {
+      if (row == eRow) {
+        _dragOffset += details.delta.dx;
+      } else if (col == eCol) {
+        _dragOffset += details.delta.dy;
+      }
+    });
+  }
+
+  void _onPanEnd(DragEndDetails details, int index, double tileSize) {
+    if (_draggedTileIndex != index) return;
+
+    final offsetMag = _dragOffset.abs();
+
+    setState(() {
+      _draggedTileIndex = null;
+      _dragOffset = 0.0;
+    });
+
+    if (offsetMag > tileSize * 0.4) {
+      if (_engine.canMove(index)) {
+        setState(() {
+          _engine.move(index);
+          _moves++;
+
+          if (_engine.isSolved) {
+            _isPlaying = false;
+            _timer?.cancel();
+            _showCompletionDialog();
+          }
+        });
+      }
     }
   }
 
@@ -157,25 +215,69 @@ class _GameScreenState extends State<GameScreen> {
                           final index = entry.key;
                           final tileId = entry.value;
 
-                          if (tileId == _currentSize * _currentSize) {
-                            return const SizedBox.shrink(); // Empty tile
-                          }
-
                           final row = index ~/ _currentSize;
                           final col = index % _currentSize;
+
+                          double visualLeft = col * tileSize;
+                          double visualTop = row * tileSize;
+                          final isDragged = index == _draggedTileIndex;
+
+                          if (isDragged) {
+                            final eIndex = _engine.emptyIndex;
+                            final eRow = eIndex ~/ _currentSize;
+                            final eCol = eIndex % _currentSize;
+
+                            if (eRow == row) {
+                              final maxOffset = (eCol - col) * tileSize;
+                              if (maxOffset > 0) {
+                                visualLeft += _dragOffset.clamp(0.0, maxOffset);
+                              } else {
+                                visualLeft += _dragOffset.clamp(maxOffset, 0.0);
+                              }
+                            } else if (eCol == col) {
+                              final maxOffset = (eRow - row) * tileSize;
+                              if (maxOffset > 0) {
+                                visualTop += _dragOffset.clamp(0.0, maxOffset);
+                              } else {
+                                visualTop += _dragOffset.clamp(maxOffset, 0.0);
+                              }
+                            }
+                          }
+
+                          if (tileId == _currentSize * _currentSize) {
+                            return AnimatedPositioned(
+                              key: ValueKey(tileId),
+                              duration: const Duration(milliseconds: 250),
+                              left: visualLeft,
+                              top: visualTop,
+                              width: tileSize,
+                              height: tileSize,
+                              child: const SizedBox.shrink(),
+                            );
+                          }
+
                           final correctRow = (tileId - 1) ~/ _currentSize;
                           final correctCol = (tileId - 1) % _currentSize;
 
                           return AnimatedPositioned(
                             key: ValueKey(tileId),
-                            duration: const Duration(milliseconds: 250),
+                            duration: isDragged
+                                ? Duration.zero
+                                : const Duration(milliseconds: 250),
                             curve: Curves.easeOut,
-                            left: col * tileSize,
-                            top: row * tileSize,
+                            left: visualLeft,
+                            top: visualTop,
                             width: tileSize,
                             height: tileSize,
                             child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
                               onTap: () => _onTileTapped(index),
+                              onPanStart: (details) =>
+                                  _onPanStart(details, index),
+                              onPanUpdate: (details) =>
+                                  _onPanUpdate(details, index),
+                              onPanEnd: (details) =>
+                                  _onPanEnd(details, index, tileSize),
                               child: Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
