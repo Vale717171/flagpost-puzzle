@@ -4,6 +4,7 @@ import 'package:flagpost/puzzle/game_screen.dart';
 import 'package:flagpost/puzzle/logic/puzzle_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// A FlagRepository pre-loaded with a single fake flag.
 /// Avoids rootBundle.loadString() which is unavailable in tests.
@@ -52,6 +53,7 @@ void main() {
 
     setUp(() {
       fakeFlagRepo = FakeFlagRepository();
+      SharedPreferences.setMockInitialValues({});
     });
 
     testWidgets('loads without crashing after async flag loading',
@@ -119,6 +121,33 @@ void main() {
 
       // Move counter should now be 1
       expect(find.text('Moves: 1'), findsOneWidget);
+    });
+
+    testWidgets('shows completion dialog with best records on puzzle solved',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: GameScreen(
+          testEngine: PuzzleEngine.withTiles(3, [1, 2, 3, 4, 5, 6, 7, 9, 8]),
+          testFlagRepo: fakeFlagRepo,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Tap the tile at index 8 (which is '8') to solve
+      final tileFinder = find.byKey(const Key('puzzle-tile-position-8'));
+      await tester.tap(tileFinder);
+      
+      // Wait for completion logic and dialog to render
+      await tester.pumpAndSettle();
+
+      // Dialog should appear
+      expect(find.text('Puzzle completed!'), findsOneWidget);
+      // 'New best!' should be present (once for time, once for moves)
+      expect(find.text('New best!'), findsWidgets);
+      // Moves was 1 (appears in game screen and dialog)
+      expect(find.text('Moves: 1'), findsWidgets);
+      // Best Moves: 1
+      expect(find.text('Best Moves: 1'), findsOneWidget);
     });
   });
 }

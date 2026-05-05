@@ -4,6 +4,7 @@ import 'package:flagpost/puzzle/logic/puzzle_engine.dart';
 import 'package:flagpost/puzzle/data/flag_repository.dart';
 import 'package:flagpost/puzzle/data/flag_country.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GameScreen extends StatefulWidget {
   final PuzzleEngine? testEngine;
@@ -91,9 +92,7 @@ class _GameScreenState extends State<GameScreen> {
         _moves++;
 
         if (_engine.isSolved) {
-          _isPlaying = false;
-          _timer?.cancel();
-          _showCompletionDialog();
+          _handlePuzzleCompleted();
         }
       });
     }
@@ -143,16 +142,53 @@ class _GameScreenState extends State<GameScreen> {
           _moves++;
 
           if (_engine.isSolved) {
-            _isPlaying = false;
-            _timer?.cancel();
-            _showCompletionDialog();
+            _handlePuzzleCompleted();
           }
         });
       }
     }
   }
 
-  void _showCompletionDialog() {
+  Future<void> _handlePuzzleCompleted() async {
+    _isPlaying = false;
+    _timer?.cancel();
+
+    final prefs = await SharedPreferences.getInstance();
+    final flagId = _currentFlag!.id;
+    final timeKey = 'best_time_${flagId}_$_currentSize';
+    final movesKey = 'best_moves_${flagId}_$_currentSize';
+
+    final bestTime = prefs.getInt(timeKey);
+    final bestMoves = prefs.getInt(movesKey);
+
+    bool isNewBestTime = false;
+    bool isNewBestMoves = false;
+
+    if (bestTime == null || _seconds < bestTime) {
+      await prefs.setInt(timeKey, _seconds);
+      isNewBestTime = true;
+    }
+    if (bestMoves == null || _moves < bestMoves) {
+      await prefs.setInt(movesKey, _moves);
+      isNewBestMoves = true;
+    }
+
+    if (!mounted) return;
+
+    _showCompletionDialog(
+      bestTime: isNewBestTime ? _seconds : bestTime ?? _seconds,
+      bestMoves: isNewBestMoves ? _moves : bestMoves ?? _moves,
+      isNewBestTime: isNewBestTime,
+      isNewBestMoves: isNewBestMoves,
+    );
+  }
+
+  void _showCompletionDialog({
+    required int bestTime,
+    required int bestMoves,
+    required bool isNewBestTime,
+    required bool isNewBestMoves,
+  }) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -162,8 +198,29 @@ class _GameScreenState extends State<GameScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Time: ${_formatTime(_seconds)}'),
-            Text('Moves: $_moves'),
+            Row(
+              children: [
+                Text('Time: ${_formatTime(_seconds)}'),
+                if (isNewBestTime)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text('New best!', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                  ),
+              ],
+            ),
+            Row(
+              children: [
+                Text('Moves: $_moves'),
+                if (isNewBestMoves)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text('New best!', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('Best Time: ${_formatTime(bestTime)}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text('Best Moves: $bestMoves', style: const TextStyle(fontSize: 12, color: Colors.grey)),
             const SizedBox(height: 16),
             if (_currentFlag != null) ...[
               Text('Country: ${_currentFlag!.countryName}', style: const TextStyle(fontWeight: FontWeight.bold)),
