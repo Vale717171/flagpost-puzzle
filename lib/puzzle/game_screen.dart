@@ -269,12 +269,12 @@ class _GameScreenState extends State<GameScreen> {
             padding: const EdgeInsets.only(right: 8.0),
             child: PopupMenuButton<int>(
               key: const Key('difficulty-selector'),
-              onSelected: _startNewGame,
+              onSelected: (int value) => _startNewGame(value),
               tooltip: 'Change difficulty',
               padding: EdgeInsets.zero,
               position: PopupMenuPosition.under,
-              itemBuilder: (context) => [
-                PopupMenuItem(
+              itemBuilder: (context) => <PopupMenuEntry<int>>[
+                PopupMenuItem<int>(
                   value: 3,
                   child: Row(
                     children: [
@@ -284,7 +284,7 @@ class _GameScreenState extends State<GameScreen> {
                     ],
                   ),
                 ),
-                PopupMenuItem(
+                PopupMenuItem<int>(
                   value: 4,
                   child: Row(
                     children: [
@@ -294,7 +294,7 @@ class _GameScreenState extends State<GameScreen> {
                     ],
                   ),
                 ),
-                PopupMenuItem(
+                PopupMenuItem<int>(
                   value: 5,
                   child: Row(
                     children: [

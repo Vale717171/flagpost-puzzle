@@ -203,5 +203,68 @@ void main() {
       // Moves should be reset to 0
       expect(find.text('Moves: 0'), findsOneWidget);
     });
+
+    testWidgets(
+        'selecting Easy 3x3 updates selector label and board size',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: GameScreen(
+          testFlagRepo: fakeFlagRepo,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Default difficulty label should be 4×4
+      expect(find.text('4×4'), findsOneWidget);
+
+      // Open difficulty selector
+      final selector = find.byKey(const Key('difficulty-selector'));
+      await tester.tap(selector);
+      await tester.pumpAndSettle();
+
+      // Select Easy 3×3
+      await tester.tap(find.text('Easy 3×3'));
+      await tester.pumpAndSettle();
+
+      // Selector label should now show 3×3
+      expect(find.text('3×3'), findsOneWidget);
+      // Old label should be gone
+      expect(find.text('4×4'), findsNothing);
+
+      // Board should have 9 tile widgets (8 numbered + 1 empty)
+      // The puzzle-tile-position keys go from 0..8 for a 3x3 grid
+      expect(find.byKey(const Key('puzzle-tile-position-8')), findsOneWidget);
+      // Index 9 should NOT exist (that would be a 4x4+ grid)
+      expect(find.byKey(const Key('puzzle-tile-position-9')), findsNothing);
+    });
+
+    testWidgets(
+        'selecting Hard 5x5 updates selector label',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: GameScreen(
+          testFlagRepo: fakeFlagRepo,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Open difficulty selector
+      final selector = find.byKey(const Key('difficulty-selector'));
+      await tester.tap(selector);
+      await tester.pumpAndSettle();
+
+      // Select Hard 5×5
+      await tester.tap(find.text('Hard 5×5'));
+      await tester.pumpAndSettle();
+
+      // Selector label should now show 5×5
+      expect(find.text('5×5'), findsOneWidget);
+      expect(find.text('4×4'), findsNothing);
+
+      // Board should have 25 tile widgets (24 numbered + 1 empty)
+      expect(find.byKey(const Key('puzzle-tile-position-24')), findsOneWidget);
+      // Index 25 should NOT exist
+      expect(find.byKey(const Key('puzzle-tile-position-25')), findsNothing);
+    });
   });
 }
