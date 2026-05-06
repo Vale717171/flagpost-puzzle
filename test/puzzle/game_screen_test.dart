@@ -188,6 +188,48 @@ void main() {
       expect(find.text('Best Moves: 1'), findsOneWidget);
     });
 
+    testWidgets('persists best star rating on completion', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: PuzzleEngine.withTiles(3, [1, 2, 3, 4, 5, 6, 7, 9, 8]),
+            testFlagRepo: fakeFlagRepo,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('puzzle-tile-position-8')));
+      await tester.pumpAndSettle();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('best_stars_test_4'), 3);
+    });
+
+    testWidgets('updates best star only when improved', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({'best_stars_test_4': 3});
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: PuzzleEngine.withTiles(3, [1, 2, 3, 4, 5, 6, 7, 9, 8]),
+            testFlagRepo: fakeFlagRepo,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('puzzle-tile-position-8')));
+      await tester.pumpAndSettle();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('best_stars_test_4'), 3);
+    });
+
     testWidgets('difficulty selector shows popup with three options', (
       WidgetTester tester,
     ) async {

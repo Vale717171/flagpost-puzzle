@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flagpost/puzzle/logic/puzzle_engine.dart';
+import 'package:flagpost/puzzle/logic/star_rating.dart';
 import 'package:flagpost/puzzle/data/flag_repository.dart';
 import 'package:flagpost/puzzle/data/flag_country.dart';
 import 'package:flutter/material.dart';
@@ -173,9 +174,16 @@ class _GameScreenState extends State<GameScreen> {
     final flagId = _currentFlag!.id;
     final timeKey = 'best_time_${flagId}_$_currentSize';
     final movesKey = 'best_moves_${flagId}_$_currentSize';
+    final starsKey = 'best_stars_${flagId}_$_currentSize';
 
     final bestTime = prefs.getInt(timeKey);
     final bestMoves = prefs.getInt(movesKey);
+    final bestStars = prefs.getInt(starsKey);
+    final currentStars = StarRating.calculate(
+      gridSize: _currentSize,
+      moves: _moves,
+      seconds: _seconds,
+    );
 
     bool isNewBestTime = false;
     bool isNewBestMoves = false;
@@ -188,22 +196,35 @@ class _GameScreenState extends State<GameScreen> {
       await prefs.setInt(movesKey, _moves);
       isNewBestMoves = true;
     }
+    final isNewBestStars = StarRating.isNewBest(
+      currentStars: currentStars,
+      previousBestStars: bestStars,
+    );
+    if (isNewBestStars) {
+      await prefs.setInt(starsKey, currentStars);
+    }
 
     if (!mounted) return;
 
     _showCompletionDialog(
       bestTime: isNewBestTime ? _seconds : bestTime ?? _seconds,
       bestMoves: isNewBestMoves ? _moves : bestMoves ?? _moves,
+      stars: currentStars,
+      bestStars: isNewBestStars ? currentStars : bestStars ?? currentStars,
       isNewBestTime: isNewBestTime,
       isNewBestMoves: isNewBestMoves,
+      isNewBestStars: isNewBestStars,
     );
   }
 
   void _showCompletionDialog({
     required int bestTime,
     required int bestMoves,
+    required int stars,
+    required int bestStars,
     required bool isNewBestTime,
     required bool isNewBestMoves,
+    required bool isNewBestStars,
   }) {
     showDialog(
       context: context,
@@ -248,6 +269,24 @@ class _GameScreenState extends State<GameScreen> {
                   ),
               ],
             ),
+            Row(
+              children: [
+                const Text('Rating: '),
+                _buildStars(stars),
+                if (isNewBestStars)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      'New best!',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
             Text(
               'Best Time: ${_formatTime(bestTime)}',
@@ -256,6 +295,18 @@ class _GameScreenState extends State<GameScreen> {
             Text(
               'Best Moves: $bestMoves',
               style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            Row(
+              children: [
+                const Text(
+                  'Best Stars: ',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                IconTheme(
+                  data: const IconThemeData(size: 14, color: Colors.amber),
+                  child: _buildStars(bestStars),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             if (_currentFlag != null) ...[
@@ -296,6 +347,20 @@ class _GameScreenState extends State<GameScreen> {
     final m = (seconds ~/ 60).toString().padLeft(2, '0');
     final s = (seconds % 60).toString().padLeft(2, '0');
     return '$m:$s';
+  }
+
+  Widget _buildStars(int stars) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List<Widget>.generate(3, (index) {
+        final filled = index < stars;
+        return Icon(
+          filled ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+          size: 18,
+        );
+      }),
+    );
   }
 
   @override
