@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:collection';
 
 import 'package:flutter/services.dart';
 
@@ -42,4 +43,7 @@ class FlagRepository {
     final flagIndex = dayIndex % _flags.length;
     return _flags[flagIndex];
   }
+
+  UnmodifiableListView<FlagCountry> get flags =>
+      UnmodifiableListView<FlagCountry>(_flags);
 }
