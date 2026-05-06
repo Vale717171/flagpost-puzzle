@@ -1,10 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'data/flag_repository.dart';
 import 'game_screen.dart';
 import 'collection_screen.dart';
+import 'settings/puzzle_preferences.dart';
 import 'settings_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  final FlagRepository? testFlagRepo;
+  final SharedPreferences? testPrefs;
+  const HomeScreen({super.key, this.testFlagRepo, this.testPrefs});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final Future<_HomeProgressSummaryData> _summaryFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _summaryFuture = _loadSummary();
+  }
+
+  Future<_HomeProgressSummaryData> _loadSummary() async {
+    final repo = widget.testFlagRepo ?? FlagRepository();
+    if (widget.testFlagRepo == null) {
+      await repo.loadAll();
+    }
+    final prefs = widget.testPrefs ?? await SharedPreferences.getInstance();
+
+    int solvedFlags = 0;
+    for (final flag in repo.flags) {
+      bool solved = false;
+      for (final size in const [3, 4, 5]) {
+        if (prefs.getInt('best_time_${flag.id}_$size') != null ||
+            prefs.getInt('best_moves_${flag.id}_$size') != null ||
+            prefs.getInt('best_stars_${flag.id}_$size') != null) {
+          solved = true;
+          break;
+        }
+      }
+      if (solved) solvedFlags++;
+    }
+
+    final totalFlags = repo.flags.length;
+    final streak = prefs.getInt(PuzzlePreferences.dailyStreakCountKey) ?? 0;
+
+    return _HomeProgressSummaryData(
+      solvedFlags: solvedFlags,
+      totalFlags: totalFlags,
+      dailyStreak: streak,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +114,56 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(flex: 1),
+                  FutureBuilder<_HomeProgressSummaryData>(
+                    future: _summaryFuture,
+                    builder: (context, snapshot) {
+                      final data = snapshot.data;
+                      if (data == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return Container(
+                        key: const Key('home-progress-summary'),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withAlpha(220),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Solved: ${data.solvedFlags}/${data.totalFlags}',
+                              key: const Key('home-solved-summary'),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            if (data.dailyStreak > 0)
+                              Text(
+                                'Daily streak: ${data.dailyStreak}',
+                                key: const Key('home-daily-streak'),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).push(
@@ -182,6 +282,18 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _HomeProgressSummaryData {
+  final int solvedFlags;
+  final int totalFlags;
+  final int dailyStreak;
+
+  const _HomeProgressSummaryData({
+    required this.solvedFlags,
+    required this.totalFlags,
+    required this.dailyStreak,
+  });
 }
 
 class _BackgroundGrid extends StatelessWidget {
