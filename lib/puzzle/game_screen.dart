@@ -37,6 +37,7 @@ class _GameScreenState extends State<GameScreen> {
   int _restartCounter = 0;
   int? _draggedTileIndex;
   double _dragOffset = 0.0;
+  final List<_GameSnapshot> _undoStack = [];
 
   @override
   void initState() {
@@ -88,6 +89,7 @@ class _GameScreenState extends State<GameScreen> {
       _restartCounter++;
       _draggedTileIndex = null;
       _dragOffset = 0.0;
+      _undoStack.clear();
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -105,6 +107,7 @@ class _GameScreenState extends State<GameScreen> {
 
     if (_engine.canMove(index)) {
       setState(() {
+        _saveUndoSnapshot();
         _engine.move(index);
         _moves++;
 
@@ -155,6 +158,7 @@ class _GameScreenState extends State<GameScreen> {
     if (offsetMag > tileSize * 0.4) {
       if (_engine.canMove(index)) {
         setState(() {
+          _saveUndoSnapshot();
           _engine.move(index);
           _moves++;
 
@@ -164,6 +168,30 @@ class _GameScreenState extends State<GameScreen> {
         });
       }
     }
+  }
+
+  void _saveUndoSnapshot() {
+    _undoStack.add(
+      _GameSnapshot(
+        gridSize: _engine.size,
+        tiles: List<int>.from(_engine.tiles),
+        moves: _moves,
+        seconds: _seconds,
+      ),
+    );
+  }
+
+  void _undoLastMove() {
+    if (_undoStack.isEmpty || !_isPlaying) return;
+    final snapshot = _undoStack.removeLast();
+    setState(() {
+      _engine = PuzzleEngine.withTiles(snapshot.gridSize, snapshot.tiles);
+      _currentSize = snapshot.gridSize;
+      _moves = snapshot.moves;
+      _seconds = snapshot.seconds;
+      _draggedTileIndex = null;
+      _dragOffset = 0.0;
+    });
   }
 
   Future<void> _handlePuzzleCompleted() async {
@@ -681,6 +709,13 @@ class _GameScreenState extends State<GameScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton.icon(
+                          onPressed: _undoStack.isEmpty || !_isPlaying
+                              ? null
+                              : _undoLastMove,
+                          icon: const Icon(Icons.undo),
+                          label: const Text('Undo'),
+                        ),
+                        ElevatedButton.icon(
                           onPressed: () => _startNewGame(_currentSize),
                           icon: const Icon(Icons.refresh),
                           label: const Text('Restart'),
@@ -712,4 +747,18 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
   }
+}
+
+class _GameSnapshot {
+  final int gridSize;
+  final List<int> tiles;
+  final int moves;
+  final int seconds;
+
+  const _GameSnapshot({
+    required this.gridSize,
+    required this.tiles,
+    required this.moves,
+    required this.seconds,
+  });
 }

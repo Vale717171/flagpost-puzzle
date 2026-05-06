@@ -99,6 +99,7 @@ void main() {
       expect(find.text('Play'), findsOneWidget);
 
       // Action buttons
+      expect(find.text('Undo'), findsOneWidget);
       expect(find.text('Restart'), findsOneWidget);
       expect(find.text('Preview'), findsOneWidget);
 
@@ -156,6 +157,49 @@ void main() {
 
       // Move counter should now be 1
       expect(find.text('Moves: 1'), findsOneWidget);
+    });
+
+    testWidgets('undo restores previous move state', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: fakeFlagRepo,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Initial state: no moves and undo disabled.
+      expect(find.text('Moves: 0'), findsOneWidget);
+      final undoButton = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Undo'),
+      );
+      expect(undoButton.onPressed, isNull);
+
+      // Make one move.
+      await tester.tap(find.byKey(const Key('puzzle-tile-position-7')));
+      await tester.pump();
+      expect(find.text('Moves: 1'), findsOneWidget);
+
+      // Undo should now be enabled.
+      final enabledUndoButton = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Undo'),
+      );
+      expect(enabledUndoButton.onPressed, isNotNull);
+
+      // Undo and verify rollback.
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Undo'));
+      await tester.pump();
+      expect(find.text('Moves: 0'), findsOneWidget);
+
+      // Undo disabled again.
+      final disabledUndoAgain = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Undo'),
+      );
+      expect(disabledUndoAgain.onPressed, isNull);
     });
 
     testWidgets('shows completion dialog with best records on puzzle solved', (
