@@ -12,9 +12,7 @@ class HomeScreen extends StatelessWidget {
       body: Stack(
         children: [
           // Background
-          const Positioned.fill(
-            child: _BackgroundGrid(),
-          ),
+          const Positioned.fill(child: _BackgroundGrid()),
           // Foreground
           SafeArea(
             child: Center(
@@ -24,9 +22,14 @@ class HomeScreen extends StatelessWidget {
                   const Spacer(flex: 2),
                   // Title
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 24,
+                    ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withAlpha(217),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withAlpha(217),
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
@@ -61,15 +64,19 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(flex: 1),
-                  // Play Button
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => const GameScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const GameScreen(),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 48,
+                        vertical: 18,
+                      ),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       elevation: 8,
@@ -77,7 +84,45 @@ class HomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(32),
                       ),
                     ),
-                    child: const Text('PLAY', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Play Random',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const GameScreen(isDailyFlag: true),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.today),
+                    label: const Text(
+                      'Daily Flag',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 36,
+                        vertical: 14,
+                      ),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surface.withAlpha(230),
+                    ),
                   ),
                   const SizedBox(height: 32),
                   // Secondary Buttons
@@ -87,28 +132,43 @@ class HomeScreen extends StatelessWidget {
                       OutlinedButton.icon(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => const CollectionScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => const CollectionScreen(),
+                            ),
                           );
                         },
                         icon: const Icon(Icons.collections),
                         label: const Text('Collection'),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(230),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.surface.withAlpha(230),
                         ),
                       ),
                       const SizedBox(width: 16),
                       OutlinedButton.icon(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => const PuzzleSettingsScreen()),
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PuzzleSettingsScreen(),
+                            ),
                           );
                         },
                         icon: const Icon(Icons.settings),
                         label: const Text('Settings'),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          backgroundColor: Theme.of(context).colorScheme.surface.withAlpha(230),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.surface.withAlpha(230),
                         ),
                       ),
                     ],
@@ -157,7 +217,7 @@ class _BackgroundGrid extends StatelessWidget {
             final crossAxisCount = constraints.maxWidth > 600 ? 5 : 3;
             // Provide enough items to fill typical screen heights
             final itemCount = crossAxisCount * 10;
-            
+
             return GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
@@ -170,7 +230,7 @@ class _BackgroundGrid extends StatelessWidget {
               itemCount: itemCount,
               itemBuilder: (context, index) {
                 final asset = _bgFlags[index % _bgFlags.length];
-                
+
                 final isEven = index % 2 == 0;
                 final angle = isEven ? 0.1 : -0.1;
                 final yOffset = (index % crossAxisCount) * 16.0;
@@ -199,7 +259,7 @@ class _BackgroundGrid extends StatelessWidget {
                 );
               },
             );
-          }
+          },
         ),
       ),
     );

@@ -20,19 +20,26 @@ class FakeFlagRepository extends FlagRepository {
 
   @override
   FlagCountry randomFlag() {
-    return FlagCountry(
-      id: 'test',
-      countryName: 'Testland',
-      capital: 'Testville',
-      continent: 'Testing',
-      // Use a 1x1 transparent PNG encoded as base64 would be ideal,
-      // but for widget tests we just need a path that doesn't crash
-      // Image.asset with a non-existent path won't crash widget tests
-      // because the image framework silently handles missing assets in test.
-      assetPath: 'assets/flags/images/it.png',
-      shortFact: 'A country made for tests.',
-    );
+    return _testFlag;
   }
+
+  @override
+  FlagCountry dailyFlag({DateTime? utcNow}) {
+    return _testFlag;
+  }
+
+  FlagCountry get _testFlag => FlagCountry(
+    id: 'test',
+    countryName: 'Testland',
+    capital: 'Testville',
+    continent: 'Testing',
+    // Use a 1x1 transparent PNG encoded as base64 would be ideal,
+    // but for widget tests we just need a path that doesn't crash
+    // Image.asset with a non-existent path won't crash widget tests
+    // because the image framework silently handles missing assets in test.
+    assetPath: 'assets/flags/images/it.png',
+    shortFact: 'A country made for tests.',
+  );
 }
 
 /// Build a deterministic 3x3 engine that is NOT one move from solved.
@@ -56,14 +63,17 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    testWidgets('loads without crashing after async flag loading',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testEngine: _makeDeterministicEngine(),
-          testFlagRepo: fakeFlagRepo,
+    testWidgets('loads without crashing after async flag loading', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: fakeFlagRepo,
+          ),
         ),
-      ));
+      );
 
       // Let the async _loadRepository().then(setState) complete
       await tester.pumpAndSettle();
@@ -72,14 +82,17 @@ void main() {
       expect(find.byType(GameScreen), findsOneWidget);
     });
 
-    testWidgets('basic UI elements appear after loading',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testEngine: _makeDeterministicEngine(),
-          testFlagRepo: fakeFlagRepo,
+    testWidgets('basic UI elements appear after loading', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: fakeFlagRepo,
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // AppBar title
@@ -96,15 +109,34 @@ void main() {
       expect(find.text('Timer: 00:00'), findsOneWidget);
     });
 
-    testWidgets(
-        'tapping an adjacent tile increments the move counter',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testEngine: _makeDeterministicEngine(),
-          testFlagRepo: fakeFlagRepo,
+    testWidgets('shows Daily Flag label when daily mode is enabled', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            isDailyFlag: true,
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: fakeFlagRepo,
+          ),
         ),
-      ));
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Daily Flag'), findsOneWidget);
+    });
+
+    testWidgets('tapping an adjacent tile increments the move counter', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: fakeFlagRepo,
+          ),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Verify initial state
@@ -113,8 +145,11 @@ void main() {
       // Tap tile at position index 7 (value 5, adjacent to empty at index 4).
       // The GestureDetector has key 'puzzle-tile-position-7'.
       final tileFinder = find.byKey(const Key('puzzle-tile-position-7'));
-      expect(tileFinder, findsOneWidget,
-          reason: 'Tile at position 7 should exist');
+      expect(
+        tileFinder,
+        findsOneWidget,
+        reason: 'Tile at position 7 should exist',
+      );
 
       await tester.tap(tileFinder);
       await tester.pump();
@@ -123,20 +158,23 @@ void main() {
       expect(find.text('Moves: 1'), findsOneWidget);
     });
 
-    testWidgets('shows completion dialog with best records on puzzle solved',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testEngine: PuzzleEngine.withTiles(3, [1, 2, 3, 4, 5, 6, 7, 9, 8]),
-          testFlagRepo: fakeFlagRepo,
+    testWidgets('shows completion dialog with best records on puzzle solved', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: PuzzleEngine.withTiles(3, [1, 2, 3, 4, 5, 6, 7, 9, 8]),
+            testFlagRepo: fakeFlagRepo,
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // Tap the tile at index 8 (which is '8') to solve
       final tileFinder = find.byKey(const Key('puzzle-tile-position-8'));
       await tester.tap(tileFinder);
-      
+
       // Wait for completion logic and dialog to render
       await tester.pumpAndSettle();
 
@@ -150,14 +188,17 @@ void main() {
       expect(find.text('Best Moves: 1'), findsOneWidget);
     });
 
-    testWidgets('difficulty selector shows popup with three options',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testEngine: _makeDeterministicEngine(),
-          testFlagRepo: fakeFlagRepo,
+    testWidgets('difficulty selector shows popup with three options', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: fakeFlagRepo,
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // The difficulty selector should be visible with default 4x4 label
@@ -176,14 +217,17 @@ void main() {
       expect(find.text('Hard 5×5'), findsOneWidget);
     });
 
-    testWidgets('selecting a difficulty resets moves counter',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testEngine: _makeDeterministicEngine(),
-          testFlagRepo: fakeFlagRepo,
+    testWidgets('selecting a difficulty resets moves counter', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: fakeFlagRepo,
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // Make a move first
@@ -204,14 +248,12 @@ void main() {
       expect(find.text('Moves: 0'), findsOneWidget);
     });
 
-    testWidgets(
-        'selecting Easy 3x3 updates selector label and board size',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testFlagRepo: fakeFlagRepo,
-        ),
-      ));
+    testWidgets('selecting Easy 3x3 updates selector label and board size', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: GameScreen(testFlagRepo: fakeFlagRepo)),
+      );
       await tester.pumpAndSettle();
 
       // Default difficulty label should be 4×4
@@ -238,14 +280,12 @@ void main() {
       expect(find.byKey(const Key('puzzle-tile-position-9')), findsNothing);
     });
 
-    testWidgets(
-        'selecting Hard 5x5 updates selector label',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: GameScreen(
-          testFlagRepo: fakeFlagRepo,
-        ),
-      ));
+    testWidgets('selecting Hard 5x5 updates selector label', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: GameScreen(testFlagRepo: fakeFlagRepo)),
+      );
       await tester.pumpAndSettle();
 
       // Open difficulty selector

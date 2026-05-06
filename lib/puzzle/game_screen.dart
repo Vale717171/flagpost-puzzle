@@ -9,7 +9,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class GameScreen extends StatefulWidget {
   final PuzzleEngine? testEngine;
   final FlagRepository? testFlagRepo;
-  const GameScreen({super.key, this.testEngine, this.testFlagRepo});
+  final bool isDailyFlag;
+  final DateTime? testDailyUtcNow;
+  const GameScreen({
+    super.key,
+    this.testEngine,
+    this.testFlagRepo,
+    this.isDailyFlag = false,
+    this.testDailyUtcNow,
+  });
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -43,8 +51,7 @@ class _GameScreenState extends State<GameScreen> {
         _isRepoLoaded = true;
       });
       _startNewGame(_currentSize);
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   @override
@@ -57,7 +64,9 @@ class _GameScreenState extends State<GameScreen> {
     _timer?.cancel();
     setState(() {
       if (_isRepoLoaded) {
-        _currentFlag = _flagRepo.randomFlag();
+        _currentFlag = widget.isDailyFlag
+            ? _flagRepo.dailyFlag(utcNow: widget.testDailyUtcNow)
+            : _flagRepo.randomFlag();
       }
       _currentSize = size;
       if (widget.testEngine != null) {
@@ -65,7 +74,11 @@ class _GameScreenState extends State<GameScreen> {
       } else {
         _engine = PuzzleEngine(size);
         // Determine move count based on size for a good shuffle
-        final shuffleMoves = size == 3 ? 50 : size == 4 ? 100 : 150;
+        final shuffleMoves = size == 3
+            ? 50
+            : size == 4
+            ? 100
+            : 150;
         _engine.shuffle(shuffleMoves);
       }
       _moves = 0;
@@ -207,7 +220,14 @@ class _GameScreenState extends State<GameScreen> {
                 if (isNewBestTime)
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
-                    child: Text('New best!', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                    child: Text(
+                      'New best!',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -217,19 +237,38 @@ class _GameScreenState extends State<GameScreen> {
                 if (isNewBestMoves)
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
-                    child: Text('New best!', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                    child: Text(
+                      'New best!',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
               ],
             ),
             const SizedBox(height: 8),
-            Text('Best Time: ${_formatTime(bestTime)}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            Text('Best Moves: $bestMoves', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(
+              'Best Time: ${_formatTime(bestTime)}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            Text(
+              'Best Moves: $bestMoves',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
             const SizedBox(height: 16),
             if (_currentFlag != null) ...[
-              Text('Country: ${_currentFlag!.countryName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Country: ${_currentFlag!.countryName}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('Capital: ${_currentFlag!.capital}'),
               const SizedBox(height: 8),
-              Text(_currentFlag!.shortFact, style: const TextStyle(fontStyle: FontStyle.italic)),
+              Text(
+                _currentFlag!.shortFact,
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
             ],
           ],
         ),
@@ -278,7 +317,13 @@ class _GameScreenState extends State<GameScreen> {
                   value: 3,
                   child: Row(
                     children: [
-                      Icon(Icons.grid_3x3, size: 20, color: _currentSize == 3 ? Theme.of(context).colorScheme.primary : null),
+                      Icon(
+                        Icons.grid_3x3,
+                        size: 20,
+                        color: _currentSize == 3
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                      ),
                       const SizedBox(width: 8),
                       const Text('Easy 3×3'),
                     ],
@@ -288,7 +333,13 @@ class _GameScreenState extends State<GameScreen> {
                   value: 4,
                   child: Row(
                     children: [
-                      Icon(Icons.grid_4x4, size: 20, color: _currentSize == 4 ? Theme.of(context).colorScheme.primary : null),
+                      Icon(
+                        Icons.grid_4x4,
+                        size: 20,
+                        color: _currentSize == 4
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                      ),
                       const SizedBox(width: 8),
                       const Text('Medium 4×4'),
                     ],
@@ -298,7 +349,13 @@ class _GameScreenState extends State<GameScreen> {
                   value: 5,
                   child: Row(
                     children: [
-                      Icon(Icons.grid_on, size: 20, color: _currentSize == 5 ? Theme.of(context).colorScheme.primary : null),
+                      Icon(
+                        Icons.grid_on,
+                        size: 20,
+                        color: _currentSize == 5
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                      ),
                       const SizedBox(width: 8),
                       const Text('Hard 5×5'),
                     ],
@@ -306,7 +363,10 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ],
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -314,7 +374,10 @@ class _GameScreenState extends State<GameScreen> {
                     const SizedBox(width: 6),
                     Text(
                       '$_currentSize×$_currentSize',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(width: 2),
                     const Icon(Icons.arrow_drop_down, size: 20),
@@ -330,203 +393,257 @@ class _GameScreenState extends State<GameScreen> {
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
-                  Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text('Timer: ${_formatTime(_seconds)}',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text('Moves: $_moves',
-                      key: const Key('moves-counter'),
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final maxWidth = constraints.maxWidth * 0.9;
-                    final maxHeight = constraints.maxHeight * 0.8;
-                    final boardSize =
-                        maxWidth < maxHeight ? maxWidth : maxHeight;
-                    final tileSize = boardSize / _currentSize;
-
-                    return Container(
-                      key: ValueKey('board-${_currentFlag?.id}-$_currentSize-$_restartCounter'),
-                      width: boardSize,
-                      height: boardSize,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF121212),
-                        border: Border.all(color: Colors.black87, width: 3),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            offset: Offset(2, 4),
-                            blurRadius: 6,
-                          ),
-                        ],
+                  if (widget.isDailyFlag)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Daily Flag',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
-                      child: Stack(
-                        children: _engine.tiles.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final tileId = entry.value;
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          'Timer: ${_formatTime(_seconds)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Moves: $_moves',
+                          key: const Key('moves-counter'),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final maxWidth = constraints.maxWidth * 0.9;
+                          final maxHeight = constraints.maxHeight * 0.8;
+                          final boardSize = maxWidth < maxHeight
+                              ? maxWidth
+                              : maxHeight;
+                          final tileSize = boardSize / _currentSize;
 
-                          final row = index ~/ _currentSize;
-                          final col = index % _currentSize;
-
-                          double visualLeft = col * tileSize;
-                          double visualTop = row * tileSize;
-                          final isDragged = index == _draggedTileIndex;
-
-                          if (isDragged) {
-                            final eIndex = _engine.emptyIndex;
-                            final eRow = eIndex ~/ _currentSize;
-                            final eCol = eIndex % _currentSize;
-
-                            if (eRow == row) {
-                              final maxOffset = (eCol - col) * tileSize;
-                              if (maxOffset > 0) {
-                                visualLeft += _dragOffset.clamp(0.0, maxOffset);
-                              } else {
-                                visualLeft += _dragOffset.clamp(maxOffset, 0.0);
-                              }
-                            } else if (eCol == col) {
-                              final maxOffset = (eRow - row) * tileSize;
-                              if (maxOffset > 0) {
-                                visualTop += _dragOffset.clamp(0.0, maxOffset);
-                              } else {
-                                visualTop += _dragOffset.clamp(maxOffset, 0.0);
-                              }
-                            }
-                          }
-
-                          if (tileId == _currentSize * _currentSize) {
-                            return AnimatedPositioned(
-                              key: ValueKey(tileId),
-                              duration: const Duration(milliseconds: 250),
-                              left: visualLeft,
-                              top: visualTop,
-                              width: tileSize,
-                              height: tileSize,
-                              child: Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF080808),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
+                          return Container(
+                            key: ValueKey(
+                              'board-${_currentFlag?.id}-$_currentSize-$_restartCounter',
+                            ),
+                            width: boardSize,
+                            height: boardSize,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF121212),
+                              border: Border.all(
+                                color: Colors.black87,
+                                width: 3,
                               ),
-                            );
-                          }
-
-                          final correctRow = (tileId - 1) ~/ _currentSize;
-                          final correctCol = (tileId - 1) % _currentSize;
-
-                          return AnimatedPositioned(
-                            key: ValueKey(tileId),
-                            duration: isDragged
-                                ? Duration.zero
-                                : const Duration(milliseconds: 250),
-                            curve: Curves.easeOut,
-                            left: visualLeft,
-                            top: visualTop,
-                            width: tileSize,
-                            height: tileSize,
-                            child: GestureDetector(
-                              key: Key('puzzle-tile-position-$index'),
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => _onTileTapped(index),
-                              onPanStart: (details) =>
-                                  _onPanStart(details, index),
-                              onPanUpdate: (details) =>
-                                  _onPanUpdate(details, index),
-                              onPanEnd: (details) =>
-                                  _onPanEnd(details, index, tileSize),
-                              child: Container(
-                                margin: const EdgeInsets.all(2.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: Colors.black.withValues(alpha: 0.2), width: 1),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  offset: Offset(2, 4),
+                                  blurRadius: 6,
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(7),
-                                  child: OverflowBox(
-                                    maxWidth: boardSize,
-                                    maxHeight: boardSize,
-                                    alignment: Alignment.topLeft,
-                                    child: Transform.translate(
-                                      offset: Offset(
-                                        -correctCol * tileSize - 3,
-                                        -correctRow * tileSize - 3,
+                              ],
+                            ),
+                            child: Stack(
+                              children: _engine.tiles.asMap().entries.map((
+                                entry,
+                              ) {
+                                final index = entry.key;
+                                final tileId = entry.value;
+
+                                final row = index ~/ _currentSize;
+                                final col = index % _currentSize;
+
+                                double visualLeft = col * tileSize;
+                                double visualTop = row * tileSize;
+                                final isDragged = index == _draggedTileIndex;
+
+                                if (isDragged) {
+                                  final eIndex = _engine.emptyIndex;
+                                  final eRow = eIndex ~/ _currentSize;
+                                  final eCol = eIndex % _currentSize;
+
+                                  if (eRow == row) {
+                                    final maxOffset = (eCol - col) * tileSize;
+                                    if (maxOffset > 0) {
+                                      visualLeft += _dragOffset.clamp(
+                                        0.0,
+                                        maxOffset,
+                                      );
+                                    } else {
+                                      visualLeft += _dragOffset.clamp(
+                                        maxOffset,
+                                        0.0,
+                                      );
+                                    }
+                                  } else if (eCol == col) {
+                                    final maxOffset = (eRow - row) * tileSize;
+                                    if (maxOffset > 0) {
+                                      visualTop += _dragOffset.clamp(
+                                        0.0,
+                                        maxOffset,
+                                      );
+                                    } else {
+                                      visualTop += _dragOffset.clamp(
+                                        maxOffset,
+                                        0.0,
+                                      );
+                                    }
+                                  }
+                                }
+
+                                if (tileId == _currentSize * _currentSize) {
+                                  return AnimatedPositioned(
+                                    key: ValueKey(tileId),
+                                    duration: const Duration(milliseconds: 250),
+                                    left: visualLeft,
+                                    top: visualTop,
+                                    width: tileSize,
+                                    height: tileSize,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF080808),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
                                       ),
-                                      child: Image.asset(
-                                        _currentFlag!.assetPath,
-                                        fit: BoxFit.cover,
-                                        width: boardSize,
-                                        height: boardSize,
+                                    ),
+                                  );
+                                }
+
+                                final correctRow = (tileId - 1) ~/ _currentSize;
+                                final correctCol = (tileId - 1) % _currentSize;
+
+                                return AnimatedPositioned(
+                                  key: ValueKey(tileId),
+                                  duration: isDragged
+                                      ? Duration.zero
+                                      : const Duration(milliseconds: 250),
+                                  curve: Curves.easeOut,
+                                  left: visualLeft,
+                                  top: visualTop,
+                                  width: tileSize,
+                                  height: tileSize,
+                                  child: GestureDetector(
+                                    key: Key('puzzle-tile-position-$index'),
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _onTileTapped(index),
+                                    onPanStart: (details) =>
+                                        _onPanStart(details, index),
+                                    onPanUpdate: (details) =>
+                                        _onPanUpdate(details, index),
+                                    onPanEnd: (details) =>
+                                        _onPanEnd(details, index, tileSize),
+                                    child: Container(
+                                      margin: const EdgeInsets.all(2.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          width: 1,
+                                        ),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            offset: Offset(0, 2),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(7),
+                                        child: OverflowBox(
+                                          maxWidth: boardSize,
+                                          maxHeight: boardSize,
+                                          alignment: Alignment.topLeft,
+                                          child: Transform.translate(
+                                            offset: Offset(
+                                              -correctCol * tileSize - 3,
+                                              -correctRow * tileSize - 3,
+                                            ),
+                                            child: Image.asset(
+                                              _currentFlag!.assetPath,
+                                              fit: BoxFit.cover,
+                                              width: boardSize,
+                                              height: boardSize,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              }).toList(),
                             ),
                           );
-                        }).toList(),
+                        },
                       ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _startNewGame(_currentSize),
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Restart'),
+                    ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Preview'),
-                          content: Image.asset(_currentFlag!.assetPath),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Close'),
-                            ),
-                          ],
+                  Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () => _startNewGame(_currentSize),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Restart'),
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.visibility),
-                    label: const Text('Preview'),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Preview'),
+                                content: Image.asset(_currentFlag!.assetPath),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.visibility),
+                          label: const Text('Preview'),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
