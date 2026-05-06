@@ -5,7 +5,10 @@ import 'package:flagpost/puzzle/logic/star_rating.dart';
 import 'package:flagpost/puzzle/data/flag_repository.dart';
 import 'package:flagpost/puzzle/data/flag_country.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'settings/puzzle_preferences.dart';
 
 class GameScreen extends StatefulWidget {
   final PuzzleEngine? testEngine;
@@ -38,6 +41,7 @@ class _GameScreenState extends State<GameScreen> {
   int? _draggedTileIndex;
   double _dragOffset = 0.0;
   final List<_GameSnapshot> _undoStack = [];
+  bool _soundEnabled = true;
 
   @override
   void initState() {
@@ -49,10 +53,30 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> _loadRepository() async {
     try {
       await _flagRepo.loadAll();
+      await _loadSoundSetting();
       setState(() {
         _isRepoLoaded = true;
       });
       _startNewGame(_currentSize);
+    } catch (_) {}
+  }
+
+  Future<void> _loadSoundSetting() async {
+    final prefs = await SharedPreferences.getInstance();
+    _soundEnabled = prefs.getBool(PuzzlePreferences.soundEnabledKey) ?? true;
+  }
+
+  Future<void> _playMoveSound() async {
+    if (!_soundEnabled) return;
+    try {
+      await SystemSound.play(SystemSoundType.click);
+    } catch (_) {}
+  }
+
+  Future<void> _playCompletionSound() async {
+    if (!_soundEnabled) return;
+    try {
+      await SystemSound.play(SystemSoundType.alert);
     } catch (_) {}
   }
 
@@ -110,6 +134,7 @@ class _GameScreenState extends State<GameScreen> {
         _saveUndoSnapshot();
         _engine.move(index);
         _moves++;
+        unawaited(_playMoveSound());
 
         if (_engine.isSolved) {
           _handlePuzzleCompleted();
@@ -161,6 +186,7 @@ class _GameScreenState extends State<GameScreen> {
           _saveUndoSnapshot();
           _engine.move(index);
           _moves++;
+          unawaited(_playMoveSound());
 
           if (_engine.isSolved) {
             _handlePuzzleCompleted();
@@ -192,11 +218,13 @@ class _GameScreenState extends State<GameScreen> {
       _draggedTileIndex = null;
       _dragOffset = 0.0;
     });
+    unawaited(_playMoveSound());
   }
 
   Future<void> _handlePuzzleCompleted() async {
     _isPlaying = false;
     _timer?.cancel();
+    unawaited(_playCompletionSound());
 
     final prefs = await SharedPreferences.getInstance();
     final flagId = _currentFlag!.id;
