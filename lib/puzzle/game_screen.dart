@@ -259,6 +259,9 @@ class _GameScreenState extends State<GameScreen> {
     if (isNewBestStars) {
       await prefs.setInt(starsKey, currentStars);
     }
+    if (widget.isDailyFlag) {
+      await _updateDailyStreak(prefs);
+    }
 
     if (!mounted) return;
 
@@ -270,6 +273,39 @@ class _GameScreenState extends State<GameScreen> {
       isNewBestTime: isNewBestTime,
       isNewBestMoves: isNewBestMoves,
       isNewBestStars: isNewBestStars,
+    );
+  }
+
+  Future<void> _updateDailyStreak(SharedPreferences prefs) async {
+    final nowUtc = (widget.testDailyUtcNow ?? DateTime.now()).toUtc();
+    final todayUtc = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day);
+    final todayKey = _formatUtcDay(todayUtc);
+
+    final lastCompletedDay = prefs.getString(
+      PuzzlePreferences.dailyStreakLastCompletedDayKey,
+    );
+    final currentStreak =
+        prefs.getInt(PuzzlePreferences.dailyStreakCountKey) ?? 0;
+
+    if (lastCompletedDay == todayKey) {
+      return;
+    }
+
+    int newStreak = 1;
+    if (lastCompletedDay != null) {
+      final parsedLast = DateTime.tryParse(lastCompletedDay);
+      if (parsedLast != null) {
+        final diffDays = todayUtc.difference(parsedLast).inDays;
+        if (diffDays == 1) {
+          newStreak = currentStreak + 1;
+        }
+      }
+    }
+
+    await prefs.setInt(PuzzlePreferences.dailyStreakCountKey, newStreak);
+    await prefs.setString(
+      PuzzlePreferences.dailyStreakLastCompletedDayKey,
+      todayKey,
     );
   }
 
@@ -452,6 +488,13 @@ class _GameScreenState extends State<GameScreen> {
     final m = (seconds ~/ 60).toString().padLeft(2, '0');
     final s = (seconds % 60).toString().padLeft(2, '0');
     return '$m:$s';
+  }
+
+  String _formatUtcDay(DateTime dateUtc) {
+    final y = dateUtc.year.toString().padLeft(4, '0');
+    final m = dateUtc.month.toString().padLeft(2, '0');
+    final d = dateUtc.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
   }
 
   Widget _buildStars(int stars) {
