@@ -17,6 +17,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
   SharedPreferences? _prefs;
   bool _isLoading = true;
   List<_FlagCollectionEntry> _entries = [];
+  _CollectionFilter _selectedFilter = _CollectionFilter.all;
 
   @override
   void initState() {
@@ -134,113 +135,176 @@ class _CollectionScreenState extends State<CollectionScreen> {
     );
   }
 
+  List<_FlagCollectionEntry> _visibleEntries() {
+    switch (_selectedFilter) {
+      case _CollectionFilter.all:
+        return _entries;
+      case _CollectionFilter.solved:
+        return _entries.where((e) => e.solved).toList(growable: false);
+      case _CollectionFilter.unsolved:
+        return _entries.where((e) => !e.solved).toList(growable: false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final visibleEntries = _visibleEntries();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Collection')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : GridView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: _entries.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.9,
-              ),
-              itemBuilder: (context, index) {
-                final entry = _entries[index];
-                return InkWell(
-                  key: Key('collection-item-${entry.flag.id}'),
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    if (entry.solved) {
-                      _showSolvedDetails(entry);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Solve this flag to unlock details.'),
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                  child: Row(
+                    children: [
+                      ChoiceChip(
+                        key: const Key('filter-all'),
+                        label: const Text('All'),
+                        selected: _selectedFilter == _CollectionFilter.all,
+                        onSelected: (_) => setState(
+                          () => _selectedFilter = _CollectionFilter.all,
                         ),
-                      );
-                    }
-                  },
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: Stack(
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        key: const Key('filter-solved'),
+                        label: const Text('Solved'),
+                        selected: _selectedFilter == _CollectionFilter.solved,
+                        onSelected: (_) => setState(
+                          () => _selectedFilter = _CollectionFilter.solved,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        key: const Key('filter-unsolved'),
+                        label: const Text('Unsolved'),
+                        selected: _selectedFilter == _CollectionFilter.unsolved,
+                        onSelected: (_) => setState(
+                          () => _selectedFilter = _CollectionFilter.unsolved,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: visibleEntries.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.9,
+                        ),
+                    itemBuilder: (context, index) {
+                      final entry = visibleEntries[index];
+                      return InkWell(
+                        key: Key('collection-item-${entry.flag.id}'),
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          if (entry.solved) {
+                            _showSolvedDetails(entry);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Solve this flag to unlock details.',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Positioned.fill(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: ColorFiltered(
-                                      colorFilter: entry.solved
-                                          ? const ColorFilter.mode(
-                                              Colors.transparent,
-                                              BlendMode.multiply,
-                                            )
-                                          : const ColorFilter.mode(
-                                              Colors.grey,
-                                              BlendMode.saturation,
+                                Expanded(
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          child: ColorFiltered(
+                                            colorFilter: entry.solved
+                                                ? const ColorFilter.mode(
+                                                    Colors.transparent,
+                                                    BlendMode.multiply,
+                                                  )
+                                                : const ColorFilter.mode(
+                                                    Colors.grey,
+                                                    BlendMode.saturation,
+                                                  ),
+                                            child: Image.asset(
+                                              entry.flag.assetPath,
+                                              fit: BoxFit.cover,
                                             ),
-                                      child: Image.asset(
-                                        entry.flag.assetPath,
-                                        fit: BoxFit.cover,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      if (!entry.solved)
+                                        const Positioned(
+                                          right: 6,
+                                          top: 6,
+                                          child: Icon(
+                                            Icons.lock,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
-                                if (!entry.solved)
-                                  const Positioned(
-                                    right: 6,
-                                    top: 6,
-                                    child: Icon(
-                                      Icons.lock,
-                                      color: Colors.white,
-                                    ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  entry.flag.countryName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
                                   ),
+                                ),
+                                const SizedBox(height: 4),
+                                entry.solved
+                                    ? _starsWidget(entry.bestStars)
+                                    : Text(
+                                        'Unsolved',
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            entry.flag.countryName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 4),
-                          entry.solved
-                              ? _starsWidget(entry.bestStars)
-                              : Text(
-                                  'Unsolved',
-                                  style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
     );
   }
 }
+
+enum _CollectionFilter { all, solved, unsolved }
 
 class _FlagCollectionEntry {
   final FlagCountry flag;

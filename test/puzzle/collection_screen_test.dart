@@ -59,7 +59,7 @@ void main() {
 
       expect(find.byKey(const Key('collection-item-it')), findsOneWidget);
       expect(find.byKey(const Key('collection-item-fr')), findsOneWidget);
-      expect(find.text('Unsolved'), findsOneWidget);
+      expect(find.text('Unsolved'), findsWidgets);
     });
 
     testWidgets('tapping solved flag opens detail dialog', (
@@ -111,6 +111,40 @@ void main() {
       await tester.pump();
 
       expect(find.text('Solve this flag to unlock details.'), findsOneWidget);
+    });
+
+    testWidgets('filter chips show all, solved, and unsolved subsets', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({
+        'best_time_it_4': 60,
+        'best_moves_it_4': 30,
+        'best_stars_it_4': 2,
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CollectionScreen(testFlagRepo: repo, testPrefs: prefs),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // All
+      expect(find.byKey(const Key('collection-item-it')), findsOneWidget);
+      expect(find.byKey(const Key('collection-item-fr')), findsOneWidget);
+
+      // Solved
+      await tester.tap(find.byKey(const Key('filter-solved')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('collection-item-it')), findsOneWidget);
+      expect(find.byKey(const Key('collection-item-fr')), findsNothing);
+
+      // Unsolved
+      await tester.tap(find.byKey(const Key('filter-unsolved')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('collection-item-it')), findsNothing);
+      expect(find.byKey(const Key('collection-item-fr')), findsOneWidget);
     });
   });
 }
