@@ -1,27 +1,46 @@
-# FlagPost
+# FlagPost: Puzzle
 
-FlagPost is a beta Android application focused on city-based local boards.
+FlagPost: Puzzle is an offline casual sliding puzzle game where players rebuild country flags and discover quick country facts after each solve.
 
-## Features
+## Current Features
 
-- **City Boards First**: Choose a city and read or leave practical tips, warnings, and notes from travelers and locals.
-- **Optional Nearby & Chat**: You can use the Radar/Nearby feature if you wish to see people around you. This is completely optional and your exact location is never shared with other users.
-- **Starter Prompts**: No fake users or fake messages. Empty boards come with intelligent editorial prompts to inspire the first useful notes.
-- **Privacy First**: The app does not ask for GPS permissions during onboarding. You only share your location if you explicitly decide to use the Nearby feature.
+- Sliding puzzle gameplay with selectable grid size (3x3, 4x4, 5x5)
+- Local timer and move counter per run
+- Per-flag best time and best moves stored locally
+- Flag reveal with country name, capital, and short fact on completion
+- Home, Collection, and Settings screens
+- Light and dark theme support
 
-## Project Status
+## Tech Stack
 
-This project is currently in beta and undergoing a pivot to focus primarily on local boards for travelers, expats, and compatriots.
+- Flutter (Dart)
+- Material 3 UI
+- `shared_preferences` for local persistence
+- Local asset-based flag dataset (`assets/flags/`)
 
-## Local Build Setup
+## Offline-First
 
-Some build files are intentionally kept local and excluded from git:
+The app runs fully offline. Puzzle content is loaded from bundled local assets, and progress records are stored on-device.
 
-- `lib/firebase_options.dart`
-- `android/app/google-services.json`
-- `ios/Runner/GoogleService-Info.plist`
-- `android/key.properties`
+## Run Locally
 
-Android debug builds do not require `android/key.properties`.
+```bash
+flutter pub get
+flutter run
+```
 
-Android release builds do require local signing values in `android/key.properties`. Use [docs/firebase_local_setup.md](docs/firebase_local_setup.md) and start from [android/key.properties.example](android/key.properties.example).
+## Test
+
+```bash
+flutter analyze
+flutter test
+```
+
+## Current Roadmap
+
+- richer home screen
+- daily flag
+- star rating
+- collection
+- sound effects
+- optional AdMob banner later

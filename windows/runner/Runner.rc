@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "nearling" "\0"
+            VALUE "FileDescription", "FlagPost: Puzzle" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "nearling" "\0"
+            VALUE "InternalName", "FlagPost: Puzzle" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "nearling.exe" "\0"
-            VALUE "ProductName", "nearling" "\0"
+            VALUE "OriginalFilename", "FlagPost: Puzzle.exe" "\0"
+            VALUE "ProductName", "FlagPost: Puzzle" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

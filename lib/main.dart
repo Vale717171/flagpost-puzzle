@@ -14,19 +14,19 @@ void main() async {
           ? ThemeMode.light
           : ThemeMode.system;
 
-  runApp(const FindPaesanoApp());
+  runApp(const FlagPostPuzzleApp());
 }
 
 final themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
 
-class FindPaesanoApp extends StatefulWidget {
-  const FindPaesanoApp({super.key});
+class FlagPostPuzzleApp extends StatefulWidget {
+  const FlagPostPuzzleApp({super.key});
 
   @override
-  State<FindPaesanoApp> createState() => _FindPaesanoAppState();
+  State<FlagPostPuzzleApp> createState() => _FlagPostPuzzleAppState();
 }
 
-class _FindPaesanoAppState extends State<FindPaesanoApp> {
+class _FlagPostPuzzleAppState extends State<FlagPostPuzzleApp> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
