@@ -291,78 +291,127 @@ class _GameScreenState extends State<GameScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text('Time: ${_formatTime(_seconds)}'),
-                if (isNewBestTime)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      'New best!',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            Row(
-              children: [
-                Text('Moves: $_moves'),
-                if (isNewBestMoves)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      'New best!',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            Row(
-              children: [
-                const Text('Rating: '),
-                _buildStars(stars),
-                if (isNewBestStars)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      'New best!',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
             Text(
-              'Best Time: ${_formatTime(bestTime)}',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              'This Run',
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.timer_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text('Time: ${_formatTime(_seconds)}'),
+                      if (isNewBestTime)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            'New best!',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.swipe_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text('Moves: $_moves'),
+                      if (isNewBestMoves)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            'New best!',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.star_border, size: 16),
+                      const SizedBox(width: 6),
+                      const Text('Rating: '),
+                      _buildStars(stars),
+                      if (isNewBestStars)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            'New best!',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
             Text(
-              'Best Moves: $bestMoves',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              'Best Records',
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
-            Row(
-              children: [
-                const Text(
-                  'Best Stars: ',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                IconTheme(
-                  data: const IconThemeData(size: 14, color: Colors.amber),
-                  child: _buildStars(bestStars),
-                ),
-              ],
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Best Time: ${_formatTime(bestTime)}',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  Text(
+                    'Best Moves: $bestMoves',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  Row(
+                    children: [
+                      const Text(
+                        'Best Stars: ',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      IconTheme(
+                        data: const IconThemeData(
+                          size: 14,
+                          color: Colors.amber,
+                        ),
+                        child: _buildStars(bestStars),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             if (_currentFlag != null) ...[
