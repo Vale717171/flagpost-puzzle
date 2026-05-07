@@ -30,7 +30,7 @@ if (keyPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "app.findpaesano"
+    namespace = "app.flagpost.puzzle"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -55,7 +55,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "app.findpaesano"
+        applicationId = "app.flagpost.puzzle"
         minSdk = flutter.minSdkVersion
         targetSdk = if (flutter.targetSdkVersion >= 35) flutter.targetSdkVersion else 35
         versionCode = flutter.versionCode

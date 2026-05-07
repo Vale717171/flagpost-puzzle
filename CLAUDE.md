@@ -9,5 +9,5 @@ Active app path:
 - test/puzzle/
 
 Non-goals:
-- No social, travel, nearby, chat, onboarding, or Firebase user flows.
+- No travel, onboarding, or Firebase user flows.
 - No online features in the current product scope.

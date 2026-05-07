@@ -8,7 +8,7 @@ FlagPost: Puzzle is an offline casual sliding puzzle game.
 
 - Works fully offline after installation.
 - Does not require account creation or sign-in.
-- Does not include chat or user-generated content features.
+- Does not include user-generated content features.
 
 ## Data collection and use
 

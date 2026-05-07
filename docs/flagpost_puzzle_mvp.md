@@ -2,7 +2,7 @@
 
 ## Overview
 - Product Name: FlagPost: Puzzle
-- Package Name: app.findpaesano
+- Package Name: app.flagpost.puzzle
 - Concept: A casual sliding puzzle game inspired by the classic 15-puzzle. The player rebuilds a national flag by sliding tiles and then discovers the country.
 
 ## MVP Scope
@@ -15,7 +15,7 @@
 ## Explicitly Excluded
 - Online and backend features.
 - Ads and in-app purchases in MVP.
-- Leaderboards and social features.
+- Leaderboards and multiplayer features.
 
 ## Planned Later Features
 - Dynamic flag progression and level expansion.

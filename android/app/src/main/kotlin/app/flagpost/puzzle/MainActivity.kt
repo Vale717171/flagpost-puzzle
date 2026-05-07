@@ -1,4 +1,4 @@
-package app.findpaesano
+package app.flagpost.puzzle
 
 import io.flutter.embedding.android.FlutterActivity
 
