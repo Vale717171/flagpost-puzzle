@@ -40,4 +40,4 @@ flutter test
 
 - More countries and flag packs
 - Accessibility improvements
-- Optional sound effects toggle
+- Additional puzzle modes without online dependencies

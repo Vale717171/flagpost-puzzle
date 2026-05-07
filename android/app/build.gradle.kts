@@ -4,9 +4,6 @@ import org.gradle.api.GradleException
 
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
-    id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -60,7 +57,7 @@ android {
     defaultConfig {
         applicationId = "app.findpaesano"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = if (flutter.targetSdkVersion >= 35) flutter.targetSdkVersion else 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
