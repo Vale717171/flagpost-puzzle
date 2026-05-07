@@ -15,6 +15,11 @@ class _PuzzleSettingsScreenState extends State<PuzzleSettingsScreen> {
   bool _isLoading = true;
   bool _soundEnabled = true;
   SharedPreferences? _prefs;
+  static const _progressKeyPrefixes = <String>[
+    'best_time_',
+    'best_moves_',
+    'best_stars_',
+  ];
 
   @override
   void initState() {
@@ -40,6 +45,57 @@ class _PuzzleSettingsScreenState extends State<PuzzleSettingsScreen> {
     await _prefs?.setBool(PuzzlePreferences.soundEnabledKey, value);
   }
 
+  Future<void> _resetProgress() async {
+    final prefs = _prefs;
+    if (prefs == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Progress?'),
+        content: const Text(
+          'This will clear best times, moves, stars, and daily streak data. '
+          'Sound and other settings will stay unchanged.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final keys = prefs.getKeys();
+    final keysToRemove = <String>{
+      PuzzlePreferences.dailyStreakCountKey,
+      PuzzlePreferences.dailyStreakLastCompletedDayKey,
+    };
+    for (final key in keys) {
+      for (final prefix in _progressKeyPrefixes) {
+        if (key.startsWith(prefix)) {
+          keysToRemove.add(key);
+          break;
+        }
+      }
+    }
+
+    for (final key in keysToRemove) {
+      await prefs.remove(key);
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Progress reset complete.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,23 +112,30 @@ class _PuzzleSettingsScreenState extends State<PuzzleSettingsScreen> {
                   value: _soundEnabled,
                   onChanged: _setSoundEnabled,
                 ),
-                SwitchListTile(
-                  title: const Text('Vibration'),
-                  subtitle: const Text('Placeholder'),
-                  value: true,
-                  onChanged: (bool value) {},
+                ListTile(
+                  key: const Key('reset-progress-tile'),
+                  title: const Text('Reset Progress'),
+                  subtitle: const Text(
+                    'Clear best times, moves, stars, and daily streak',
+                  ),
+                  trailing: const Icon(Icons.delete_outline),
+                  onTap: _resetProgress,
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  title: const Text('About'),
                 ),
                 ListTile(
-                  title: const Text('Difficulty'),
-                  subtitle: const Text('Placeholder'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {},
+                  title: const Text('FlagPost: Puzzle'),
+                  subtitle: const Text(
+                    'Offline game. Progress and settings are stored locally on your device.',
+                  ),
                 ),
                 ListTile(
-                  title: const Text('Reset progress'),
-                  subtitle: const Text('Placeholder'),
-                  trailing: const Icon(Icons.delete),
-                  onTap: () {},
+                  title: const Text('Flag assets'),
+                  subtitle: const Text(
+                    'Country flags are bundled app assets used for gameplay.',
+                  ),
                 ),
               ],
             ),
