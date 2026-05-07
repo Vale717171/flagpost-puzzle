@@ -36,11 +36,8 @@ flutter analyze
 flutter test
 ```
 
-## Current Roadmap
+## Roadmap
 
-- richer home screen
-- daily flag
-- star rating
-- collection
-- sound effects
-- optional AdMob banner later
+- More countries and flag packs
+- Accessibility improvements
+- Optional sound effects toggle

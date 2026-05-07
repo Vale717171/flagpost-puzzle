@@ -16,36 +16,6 @@ class AppTheme {
   static const double radiusLg = 24;
   static const EdgeInsets screenPadding = EdgeInsets.all(20);
 
-  static Color categoryColor(String label) {
-    switch (label) {
-      case 'Food':
-        return terracotta;
-      case 'Places':
-        return sageGreen;
-      case 'Transport':
-        return travelBlue;
-      case 'Warning':
-        return mutedRed;
-      default:
-        return const Color(0xFF8F7E68);
-    }
-  }
-
-  static String categoryDescription(String label) {
-    switch (label) {
-      case 'Food':
-        return 'Where to eat without surrendering your wallet.';
-      case 'Transport':
-        return 'Tickets, transfers and the ancient mysteries of local buses.';
-      case 'Places':
-        return 'The city between the postcards.';
-      case 'Warning':
-        return 'Small traps, odd rules and things locals learn the hard way.';
-      default:
-        return 'Tiny wisdom that refuses to fit in a box.';
-    }
-  }
-
   static ThemeData lightTheme() {
     const scheme = ColorScheme(
       brightness: Brightness.light,
