@@ -15,11 +15,6 @@ class _PuzzleSettingsScreenState extends State<PuzzleSettingsScreen> {
   bool _isLoading = true;
   bool _soundEnabled = true;
   SharedPreferences? _prefs;
-  static const _progressKeyPrefixes = <String>[
-    'best_time_',
-    'best_moves_',
-    'best_stars_',
-  ];
 
   @override
   void initState() {
@@ -78,7 +73,7 @@ class _PuzzleSettingsScreenState extends State<PuzzleSettingsScreen> {
       PuzzlePreferences.dailyStreakLastCompletedDayKey,
     };
     for (final key in keys) {
-      for (final prefix in _progressKeyPrefixes) {
+      for (final prefix in PuzzlePreferences.progressKeyPrefixes) {
         if (key.startsWith(prefix)) {
           keysToRemove.add(key);
           break;

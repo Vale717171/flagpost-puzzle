@@ -36,9 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final flag in repo.flags) {
       bool solved = false;
       for (final size in const [3, 4, 5]) {
-        if (prefs.getInt('best_time_${flag.id}_$size') != null ||
-            prefs.getInt('best_moves_${flag.id}_$size') != null ||
-            prefs.getInt('best_stars_${flag.id}_$size') != null) {
+        if (prefs.getInt(PuzzlePreferences.bestTimeKey(flag.id, size)) !=
+                null ||
+            prefs.getInt(PuzzlePreferences.bestMovesKey(flag.id, size)) !=
+                null ||
+            prefs.getInt(PuzzlePreferences.bestStarsKey(flag.id, size)) !=
+                null) {
           solved = true;
           break;
         }

@@ -228,9 +228,9 @@ class _GameScreenState extends State<GameScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     final flagId = _currentFlag!.id;
-    final timeKey = 'best_time_${flagId}_$_currentSize';
-    final movesKey = 'best_moves_${flagId}_$_currentSize';
-    final starsKey = 'best_stars_${flagId}_$_currentSize';
+    final timeKey = PuzzlePreferences.bestTimeKey(flagId, _currentSize);
+    final movesKey = PuzzlePreferences.bestMovesKey(flagId, _currentSize);
+    final starsKey = PuzzlePreferences.bestStarsKey(flagId, _currentSize);
 
     final bestTime = prefs.getInt(timeKey);
     final bestMoves = prefs.getInt(movesKey);

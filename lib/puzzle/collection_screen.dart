@@ -1,5 +1,6 @@
 import 'package:flagpost/puzzle/data/flag_country.dart';
 import 'package:flagpost/puzzle/data/flag_repository.dart';
+import 'package:flagpost/puzzle/settings/puzzle_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,9 +54,9 @@ class _CollectionScreenState extends State<CollectionScreen> {
     bool solved = false;
 
     for (final size in sizes) {
-      final time = prefs.getInt('best_time_${flag.id}_$size');
-      final moves = prefs.getInt('best_moves_${flag.id}_$size');
-      final stars = prefs.getInt('best_stars_${flag.id}_$size');
+      final time = prefs.getInt(PuzzlePreferences.bestTimeKey(flag.id, size));
+      final moves = prefs.getInt(PuzzlePreferences.bestMovesKey(flag.id, size));
+      final stars = prefs.getInt(PuzzlePreferences.bestStarsKey(flag.id, size));
 
       if (time != null || moves != null || stars != null) {
         solved = true;
