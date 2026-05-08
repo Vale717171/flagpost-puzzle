@@ -15,6 +15,23 @@ class FakeHomeFlagRepository extends FlagRepository {
   }
 }
 
+class _TestNavigatorObserver extends NavigatorObserver {
+  int pushCount = 0;
+  int popCount = 0;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    pushCount++;
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    popCount++;
+    super.didPop(route, previousRoute);
+  }
+}
+
 void main() {
   group('HomeScreen progress summary', () {
     late FakeHomeFlagRepository repo;
@@ -76,6 +93,62 @@ void main() {
 
       expect(find.text('Solved: 1/2'), findsOneWidget);
       expect(find.byKey(const Key('home-daily-streak')), findsNothing);
+    });
+
+    testWidgets('refreshes summary after returning from collection', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final observer = _TestNavigatorObserver();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorObservers: [observer],
+          home: HomeScreen(testFlagRepo: repo, testPrefs: prefs),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Solved: 0/2'), findsOneWidget);
+
+      await tester.tap(find.text('Collection'));
+      await tester.pumpAndSettle();
+
+      await prefs.setInt(PuzzlePreferences.bestTimeKey('it', 4), 55);
+
+      Navigator.of(tester.element(find.byType(Scaffold).first)).pop();
+      await tester.pumpAndSettle();
+
+      expect(observer.pushCount, greaterThanOrEqualTo(2));
+      expect(observer.popCount, greaterThanOrEqualTo(1));
+      expect(find.text('Solved: 1/2'), findsOneWidget);
+    });
+
+    testWidgets('refreshes summary after returning from game', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: HomeScreen(testFlagRepo: repo, testPrefs: prefs),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Solved: 0/2'), findsOneWidget);
+
+      await tester.tap(find.text('Play Random'));
+      await tester.pumpAndSettle();
+
+      await prefs.setInt(PuzzlePreferences.bestTimeKey('it', 4), 42);
+
+      Navigator.of(tester.element(find.byType(Scaffold).first)).pop();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Solved: 1/2'), findsOneWidget);
     });
   });
 }

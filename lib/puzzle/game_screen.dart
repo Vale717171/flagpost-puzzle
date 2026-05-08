@@ -32,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
   late final FlagRepository _flagRepo;
   FlagCountry? _currentFlag;
   bool _isRepoLoaded = false;
+  bool _hasLoadError = false;
   int _moves = 0;
   Timer? _timer;
   int _seconds = 0;
@@ -51,14 +52,35 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> _loadRepository() async {
+    _timer?.cancel();
+    if (mounted) {
+      setState(() {
+        _hasLoadError = false;
+        _isRepoLoaded = false;
+        _isPlaying = false;
+        _currentFlag = null;
+      });
+    } else {
+      _hasLoadError = false;
+      _isRepoLoaded = false;
+      _isPlaying = false;
+      _currentFlag = null;
+    }
+
     try {
       await _flagRepo.loadAll();
       await _loadSoundSetting();
+      if (!mounted) return;
       setState(() {
         _isRepoLoaded = true;
       });
       _startNewGame(_currentSize);
-    } catch (_) {}
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _hasLoadError = true;
+      });
+    }
   }
 
   Future<void> _loadSoundSetting() async {
@@ -602,7 +624,21 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
       body: SafeArea(
-        child: !_isRepoLoaded || _currentFlag == null
+        child: _hasLoadError
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Could not load flags.'),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: _loadRepository,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
+            : !_isRepoLoaded || _currentFlag == null
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [

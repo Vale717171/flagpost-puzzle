@@ -43,6 +43,38 @@ class FakeFlagRepository extends FlagRepository {
   );
 }
 
+class ThrowingFlagRepository extends FlagRepository {
+  ThrowingFlagRepository({this.failLoads = true});
+
+  bool failLoads;
+
+  @override
+  Future<void> loadAll() async {
+    if (failLoads) {
+      throw Exception('load failed');
+    }
+  }
+
+  @override
+  FlagCountry randomFlag() {
+    return _testFlag;
+  }
+
+  @override
+  FlagCountry dailyFlag({DateTime? utcNow}) {
+    return _testFlag;
+  }
+
+  FlagCountry get _testFlag => FlagCountry(
+    id: 'test',
+    countryName: 'Testland',
+    capital: 'Testville',
+    continent: 'Testing',
+    assetPath: 'assets/flags/images/it.png',
+    shortFact: 'A country made for tests.',
+  );
+}
+
 /// Build a deterministic 3x3 engine that is NOT one move from solved.
 ///
 /// Layout: [1, 2, 3, 4, 9, 6, 7, 5, 8]
@@ -81,6 +113,47 @@ void main() {
 
       // If we reach here without exceptions, the screen loaded successfully.
       expect(find.byType(GameScreen), findsOneWidget);
+    });
+
+    testWidgets('shows retryable error state when flag loading fails', (
+      WidgetTester tester,
+    ) async {
+      final failingRepo = ThrowingFlagRepository();
+
+      await tester.pumpWidget(
+        MaterialApp(home: GameScreen(testFlagRepo: failingRepo)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Could not load flags.'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets('retry loads the game after an initial flag loading failure', (
+      WidgetTester tester,
+    ) async {
+      final flakyRepo = ThrowingFlagRepository();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GameScreen(
+            testEngine: _makeDeterministicEngine(),
+            testFlagRepo: flakyRepo,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Could not load flags.'), findsOneWidget);
+
+      flakyRepo.failLoads = false;
+      await tester.tap(find.text('Retry'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Play'), findsOneWidget);
+      expect(find.text('Moves: 0'), findsOneWidget);
+      expect(find.text('Could not load flags.'), findsNothing);
     });
 
     testWidgets('basic UI elements appear after loading', (

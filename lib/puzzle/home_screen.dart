@@ -17,12 +17,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final Future<_HomeProgressSummaryData> _summaryFuture;
+  late Future<_HomeProgressSummaryData> _summaryFuture;
 
   @override
   void initState() {
     super.initState();
+    _refreshSummary();
+  }
+
+  void _refreshSummary() {
     _summaryFuture = _loadSummary();
+  }
+
+  Future<void> _pushAndRefresh(Widget screen) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => screen),
+    );
+    if (!mounted) return;
+    setState(_refreshSummary);
   }
 
   Future<_HomeProgressSummaryData> _loadSummary() async {
@@ -183,10 +195,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 280,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const GameScreen(),
-                          ),
+                        _pushAndRefresh(
+                          GameScreen(testFlagRepo: widget.testFlagRepo),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -217,10 +227,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 280,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const GameScreen(isDailyFlag: true),
+                        _pushAndRefresh(
+                          GameScreen(
+                            isDailyFlag: true,
+                            testFlagRepo: widget.testFlagRepo,
                           ),
                         );
                       },
@@ -254,9 +264,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       OutlinedButton.icon(
                         onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const CollectionScreen(),
+                          _pushAndRefresh(
+                            CollectionScreen(
+                              testFlagRepo: widget.testFlagRepo,
+                              testPrefs: widget.testPrefs,
                             ),
                           );
                         },
