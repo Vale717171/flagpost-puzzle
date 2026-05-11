@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'settings/puzzle_preferences.dart';
 
 class PuzzleSettingsScreen extends StatefulWidget {
+  static final Uri supportUri = Uri.parse(
+    'https://www.buymeacoffee.com/Vale71',
+  );
+
   final SharedPreferences? testPrefs;
-  const PuzzleSettingsScreen({super.key, this.testPrefs});
+  final Future<bool> Function(Uri uri)? launchExternalUrl;
+
+  const PuzzleSettingsScreen({
+    super.key,
+    this.testPrefs,
+    this.launchExternalUrl,
+  });
 
   @override
   State<PuzzleSettingsScreen> createState() => _PuzzleSettingsScreenState();
@@ -38,6 +49,22 @@ class _PuzzleSettingsScreenState extends State<PuzzleSettingsScreen> {
       _soundEnabled = value;
     });
     await _prefs?.setBool(PuzzlePreferences.soundEnabledKey, value);
+  }
+
+  Future<bool> _launchExternalUrl(Uri uri) {
+    final launcher = widget.launchExternalUrl;
+    if (launcher != null) {
+      return launcher(uri);
+    }
+    return launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _openSupportLink() async {
+    final didLaunch = await _launchExternalUrl(PuzzleSettingsScreen.supportUri);
+    if (!mounted || didLaunch) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not open support page.')),
+    );
   }
 
   Future<void> _resetProgress() async {
@@ -115,6 +142,19 @@ class _PuzzleSettingsScreenState extends State<PuzzleSettingsScreen> {
                   ),
                   trailing: const Icon(Icons.delete_outline),
                   onTap: _resetProgress,
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  title: const Text('Support the project'),
+                  subtitle: const Text(
+                    'If you enjoy FlagPost: Puzzle, you can support development.',
+                  ),
+                ),
+                ListTile(
+                  key: const Key('support-project-tile'),
+                  title: const Text('Buy me a coffee'),
+                  trailing: const Icon(Icons.coffee_outlined),
+                  onTap: _openSupportLink,
                 ),
                 const SizedBox(height: 12),
                 ListTile(

@@ -16,6 +16,7 @@ FlagPost: Puzzle is an offline casual sliding puzzle game.
 - No location data is collected by the app.
 - No advertising SDK is active in this version.
 - No analytics, backend, leaderboard, or online profile system is active in this version.
+- The app can open an external support page (Buy Me a Coffee) only when you explicitly tap the support link in Settings.
 
 ## Local storage on your device
 

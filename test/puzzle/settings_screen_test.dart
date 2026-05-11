@@ -45,6 +45,52 @@ void main() {
       expect(prefs.getBool(PuzzlePreferences.soundEnabledKey), isFalse);
     });
 
+    testWidgets('renders support section', (WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      await tester.pumpWidget(
+        MaterialApp(home: PuzzleSettingsScreen(testPrefs: prefs)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Support the project'), findsOneWidget);
+      expect(
+        find.text(
+          'If you enjoy FlagPost: Puzzle, you can support development.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Buy me a coffee'), findsOneWidget);
+      expect(find.byIcon(Icons.coffee_outlined), findsOneWidget);
+    });
+
+    testWidgets('tapping support tile attempts to open external URL', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      Uri? launchedUri;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PuzzleSettingsScreen(
+            testPrefs: prefs,
+            launchExternalUrl: (uri) async {
+              launchedUri = uri;
+              return true;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('support-project-tile')));
+      await tester.pumpAndSettle();
+
+      expect(launchedUri, PuzzleSettingsScreen.supportUri);
+    });
+
     testWidgets('reset progress clears only progress and streak keys', (
       WidgetTester tester,
     ) async {
